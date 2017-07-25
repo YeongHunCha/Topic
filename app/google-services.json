@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "876702095900",
+    "firebase_url": "https://topic-5b5c9.firebaseio.com",
+    "project_id": "topic-5b5c9",
+    "storage_bucket": "topic-5b5c9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:876702095900:android:ad550982326256cd",
+        "android_client_info": {
+          "package_name": "chacha.com.topic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "876702095900-9u0ckvtq78kukqhen1gkmmmhhu8ia41i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "chacha.com.topic",
+            "certificate_hash": "ec809f412ff7fb4fc02f3bdd2ed6d3104a726d5d"
+          }
+        },
+        {
+          "client_id": "876702095900-ju2ugannad297fbe8ciqt7dpklpvbt8h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaukvldLLA009739cmU4mcREghzWaRFug"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "876702095900-ju2ugannad297fbe8ciqt7dpklpvbt8h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
