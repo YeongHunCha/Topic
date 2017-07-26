@@ -6,11 +6,42 @@
     android:layout_height="match_parent"
     tools:context="chacha.com.topic.LoginActivity">
 
+    <EditText
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="EMAIL"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/etEmail"
+        android:layout_marginTop="150dp"/>
+    <EditText
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="PASSWORD"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/etPassword"
+        android:layout_below="@+id/etEmail"/>
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Sign-in"
+        android:id="@+id/btnSignin"
+        android:layout_below="@+id/etPassword"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:background="#00ff"/>
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Regist"
+        android:id="@+id/btnRegist"
+        android:layout_below="@+id/btnSignin"
+        android:layout_centerHorizontal="true"
+        android:background="#00ff"/>
     <com.google.android.gms.common.SignInButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/btnRegist"
         android:id="@+id/btnGoogleSignin">
 
     </com.google.android.gms.common.SignInButton>
