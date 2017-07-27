@@ -1,6 +1,7 @@
 package chacha.com.topic;
 
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -91,6 +93,16 @@ public class MainActivity extends AppCompatActivity {
         rv.setHasFixedSize(true);
         mAdapter = new IdeaAdapter(this, sList);
         rv.setAdapter(mAdapter);
+
+        //floatingBtn
+        FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.btnAddPost);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, WritingActivity.class));
+//                Toast.makeText(MainActivity.this, "test!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 

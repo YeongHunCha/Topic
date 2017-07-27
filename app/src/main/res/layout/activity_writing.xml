@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="chacha.com.topic.WritingActivity"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="15dp">
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnAddPhoto"
+        android:text="AddPhoto"
+        android:background="#00ff"
+        android:textColor="#2789a3"
+        android:layout_below="@+id/etIdea"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:hint="write your idea"
+        android:id="@+id/etIdea"/>
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_below="@+id/etIdea"
+        android:id="@+id/ivIdea"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"/>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25dp">
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="cancel"
+            android:id="@+id/btnCancel"
+            android:background="#ff5a60"/>
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnConfirm"
+            android:text="confirm"
+            android:layout_toRightOf="@+id/btnCancel"
+            android:background="#009688"
+            android:layout_marginLeft="20dp"/>
+
+
+    </RelativeLayout>
+    <ProgressBar
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:id="@+id/pb"
+        />
+</RelativeLayout>
