@@ -31,17 +31,24 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDatabaseReference;
 
-    private ArrayList<User> userList;
     private long profileCount;
     private boolean existSameEmail;
 
     private RecyclerView.Adapter mAdapter;
+
+    private ArrayList<User> userList;
+    private ArrayList<Idea> ideaList;
+    private ArrayList<String> ideaIdList;
+    private ArrayList<String> hearts;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         userList = new ArrayList<>();
+        ideaList = new ArrayList<>();
+        ideaIdList = new ArrayList<>();
+        hearts = new ArrayList<>();
         existSameEmail = false;
 
         //로그인이 되어 있지 않으면 로그인 페이지로 이동
@@ -81,17 +88,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ArrayList<String> sList = new ArrayList<>();
-        sList.add("1");
-        sList.add("2");
-        sList.add("3");
-
         //RecyclerView 셋업
         RecyclerView rv = (RecyclerView)findViewById(R.id.rv);
         RecyclerView.LayoutManager lm = new LinearLayoutManager(MainActivity.this, 1, false);
         rv.setLayoutManager(lm);
         rv.setHasFixedSize(true);
-        mAdapter = new IdeaAdapter(this, sList);
+        mAdapter = new IdeaAdapter(ideaList, MainActivity.this);
         rv.setAdapter(mAdapter);
 
         //floatingBtn
@@ -100,11 +102,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, WritingActivity.class));
-//                Toast.makeText(MainActivity.this, "test!", Toast.LENGTH_SHORT).show();
             }
         });
-    }
 
+        //content load from firebase
+        loadContents();
+    }
 
     public void addUser(){  //현재 유저를 firebase user/profile카테고리에 삽입
 
@@ -153,6 +156,38 @@ public class MainActivity extends AppCompatActivity {
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {            }
             @Override
             public void onCancelled(DatabaseError databaseError) {            }
+        });
+    }
+
+    public void loadContents() {
+        mDatabaseReference = mFirebaseDatabase.getReference("subject");
+        mDatabaseReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Idea idea = dataSnapshot.child("content").getValue(Idea.class);
+                ideaList.add(idea);
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
         });
     }
 }

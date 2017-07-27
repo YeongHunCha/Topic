@@ -31,24 +31,24 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 public class WritingActivity extends AppCompatActivity {
-    String TAG = "WritingActivity";
-    Button btnAddPhoto;
-    Button btnConfirm;
-    Button btnCancel;
-    EditText etIdea;
-    ImageView ivIdea;
+    private String TAG = "WritingActivity";
+    private Button btnAddPhoto;
+    private Button btnConfirm;
+    private Button btnCancel;
+    private EditText etIdea;
+    private ImageView ivIdea;
 
-    FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-    FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-    FirebaseDatabase mFirebaseDatabase= FirebaseDatabase.getInstance();
-    DatabaseReference mDatabaseReference;
-    StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
-    Uri uri=null;
+    private FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+    private FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+    private FirebaseDatabase mFirebaseDatabase= FirebaseDatabase.getInstance();
+    private DatabaseReference mDatabaseReference;
+    private StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
+    private Uri uri=null;
 
-    ArrayList<User> userList;
+    private ArrayList<User> userList;
 
-    String currentUserName = "";
-    String currentUserPhotoUrl = "";
+    private String currentUserName = "";
+    private String currentUserPhotoUrl = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

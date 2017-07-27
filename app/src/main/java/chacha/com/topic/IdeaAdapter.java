@@ -24,12 +24,14 @@ import java.util.ArrayList;
 
 public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
 
+    String TAG = "IdeaAdapter";
+    private ArrayList<Idea> ideaList;
     private Context mContext;
-    private ArrayList<String> sList;
 
-    public IdeaAdapter(Context context, ArrayList<String> sList) {
-        this.mContext = context;
-        this.sList = sList;
+
+    public IdeaAdapter(ArrayList<Idea> ideaList, Context mContext) {
+        this.ideaList = ideaList;
+        this.mContext = mContext;
     }
 
     @Override
@@ -42,32 +44,40 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
+        Log.d(TAG, "@@ bindviewholder!");
 
+        holder.tvContent.setText(ideaList.get(position).Content);
+        holder.tvContentHeart.setText("12345");
+        holder.tvProfileName.setText(ideaList.get(position).ProfileName);
 
-        holder.tvContent.setText("Content");
-        holder.tvContentHeart.setText(sList.get(position));
-        holder.tvProfileName.setText("hong gil dong");
+        if(ideaList.get(position).ContentImageUrl==null|| TextUtils.isEmpty(ideaList.get(position).ContentImageUrl)){
+            Glide.with(mContext).load("").fitCenter().into(holder.ivContent);
+        }else{
+            Glide
+                    .with(mContext)
+                    .load(ideaList.get(position).ContentImageUrl)
+                    .thumbnail( 0.1f )
+                    .into(holder.ivContent);
+        }
 
-        Glide
-                .with(mContext)
-                .load("")
-                .thumbnail( 0.1f )
-                .into(holder.ivContent);
-
-        Glide.with(mContext).load("").into(holder.ivProfilePhoto);
+        if(ideaList.get(position).ProfilePhoto==null||TextUtils.isEmpty(ideaList.get(position).ProfilePhoto)){
+            Glide.with(mContext).load(R.drawable.userplaceholder).fitCenter().into(holder.ivProfilePhoto);
+        }else{
+            Glide.with(mContext).load(ideaList.get(position).ProfilePhoto).into(holder.ivProfilePhoto);
+        }
 
 
         holder.btnHeart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Toast.makeText(mContext, "좋아요!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return sList.size();
+        return ideaList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
