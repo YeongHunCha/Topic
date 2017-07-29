@@ -14,6 +14,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -26,11 +33,19 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
 
     String TAG = "IdeaAdapter";
     private ArrayList<Idea> ideaList;
+    private ArrayList<String> ideaIdList;
     private Context mContext;
+    private FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+    private FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+    private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference mDatabaseReference;
+    private FirebaseStorage mFirebaseStorage = FirebaseStorage.getInstance();
+    private StorageReference mStorageReference;
 
 
-    public IdeaAdapter(ArrayList<Idea> ideaList, Context mContext) {
+    public IdeaAdapter(ArrayList<Idea> ideaList,ArrayList<String> idealIdList, Context mContext) {
         this.ideaList = ideaList;
+        this.ideaIdList = idealIdList;
         this.mContext = mContext;
     }
 
@@ -43,8 +58,40 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-
-        Log.d(TAG, "@@ bindviewholder!");
+        if(mFirebaseUser.getEmail().equals(ideaList.get(position).Writer)){
+            holder.btn_edit.setVisibility(View.VISIBLE);
+            holder.btn_edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, EditContentActivity.class);
+                    Idea idea = ideaList.get(position);
+                    intent.putExtra("Content", idea.Content);
+                    intent.putExtra("ContentImageUrl", idea.ContentImageUrl);
+                    intent.putExtra("Id", ideaIdList.get(position));
+                    intent.putExtra("Idea", idea);
+                    mContext.startActivity(intent);
+                }
+            });
+            holder.btn_delete.setVisibility(View.VISIBLE);
+            holder.btn_delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Idea idea = ideaList.get(position);
+                    String id = ideaIdList.get(position);
+                    mDatabaseReference = mFirebaseDatabase.getReference("subject").child(id);
+                    mDatabaseReference.removeValue();
+                    if(!idea.ContentImageUrl.equals("")){
+                        mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.ContentImageUrl);
+                        mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(mContext, "삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            });
+        }
 
         holder.tvContent.setText(ideaList.get(position).Content);
         holder.tvContentHeart.setText("12345");
