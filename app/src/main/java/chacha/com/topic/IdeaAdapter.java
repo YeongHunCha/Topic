@@ -22,7 +22,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 /**
@@ -34,6 +36,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     String TAG = "IdeaAdapter";
     private ArrayList<Idea> ideaList;
     private ArrayList<String> ideaIdList;
+    private ArrayList<String> hearts;
     private Context mContext;
     private FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -43,9 +46,10 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     private StorageReference mStorageReference;
 
 
-    public IdeaAdapter(ArrayList<Idea> ideaList,ArrayList<String> idealIdList, Context mContext) {
+    public IdeaAdapter(ArrayList<Idea> ideaList,ArrayList<String> idealIdList, ArrayList<String> hearts, Context mContext) {
         this.ideaList = ideaList;
         this.ideaIdList = idealIdList;
+        this.hearts = hearts;
         this.mContext = mContext;
     }
 
@@ -94,7 +98,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
         }
 
         holder.tvContent.setText(ideaList.get(position).Content);
-        holder.tvContentHeart.setText("12345");
+
         holder.tvProfileName.setText(ideaList.get(position).ProfileName);
 
         if(ideaList.get(position).ContentImageUrl==null|| TextUtils.isEmpty(ideaList.get(position).ContentImageUrl)){
@@ -113,13 +117,20 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
             Glide.with(mContext).load(ideaList.get(position).ProfilePhoto).into(holder.ivProfilePhoto);
         }
 
-
+        //좋아요 뷰
         holder.btnHeart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, "좋아요!", Toast.LENGTH_SHORT).show();
+                // TODO: 테스트 후 중복해서 좋아요를 누르지 못하는 코드 작성하기
+                Calendar c = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                final String strDate = sdf.format(c.getTime());
+                mDatabaseReference = mFirebaseDatabase.getReference("subject").child(ideaIdList.get(position)).child("lover").child(strDate);
+                mDatabaseReference.setValue(mFirebaseUser.getEmail());
             }
         });
+
+        holder.tvContentHeart.setText(hearts.get(position));
     }
 
     @Override

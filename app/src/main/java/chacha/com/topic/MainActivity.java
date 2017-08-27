@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView.LayoutManager lm = new LinearLayoutManager(MainActivity.this, 1, false);
         rv.setLayoutManager(lm);
         rv.setHasFixedSize(true);
-        mAdapter = new IdeaAdapter(ideaList, ideaIdList, MainActivity.this);
+        mAdapter = new IdeaAdapter(ideaList, ideaIdList, hearts, MainActivity.this);
         rv.setAdapter(mAdapter);
 
         //floatingBtn
@@ -168,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 String ideaId = dataSnapshot.getKey();
                 ideaList.add(idea);
                 ideaIdList.add(ideaId);
+                hearts.add(String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
                 mAdapter.notifyDataSetChanged();
             }
 

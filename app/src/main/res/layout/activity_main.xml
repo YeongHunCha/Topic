@@ -56,6 +56,8 @@
         android:layout_marginBottom="15dp"
         android:layout_marginRight="15dp"
         android:id="@+id/btnAddPost"
+        android:src="@drawable/edit"
+
         />
 
     <Button
@@ -65,6 +67,6 @@
         android:text="logout"
         android:textColor="#ff12"
         android:background="#00ff"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>
