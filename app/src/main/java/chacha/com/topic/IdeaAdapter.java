@@ -2,6 +2,7 @@ package chacha.com.topic;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,36 +65,51 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         if(mFirebaseUser.getEmail().equals(ideaList.get(position).Writer)){
-            holder.btn_edit.setVisibility(View.VISIBLE);
-            holder.btn_edit.setOnClickListener(new View.OnClickListener() {
+            holder.ib_menu.setVisibility(View.VISIBLE);
+            holder.ib_menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(mContext, EditContentActivity.class);
-                    Idea idea = ideaList.get(position);
-                    intent.putExtra("Content", idea.Content);
-                    intent.putExtra("ContentImageUrl", idea.ContentImageUrl);
-                    intent.putExtra("Id", ideaIdList.get(position));
-                    intent.putExtra("Idea", idea);
-                    mContext.startActivity(intent);
-                }
-            });
-            holder.btn_delete.setVisibility(View.VISIBLE);
-            holder.btn_delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Idea idea = ideaList.get(position);
-                    String id = ideaIdList.get(position);
-                    mDatabaseReference = mFirebaseDatabase.getReference("subject").child(id);
-                    mDatabaseReference.removeValue();
-                    if(!idea.ContentImageUrl.equals("")){
-                        mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.ContentImageUrl);
-                        mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(mContext, "삭제되었습니다.", Toast.LENGTH_SHORT).show();
+
+                    AlertDialog.Builder mBuilder = new AlertDialog.Builder(mContext);
+                    View mView =  LayoutInflater.from(mContext).inflate(R.layout.dialog, null);
+                    Button btn_edit = (Button)mView.findViewById(R.id.btn_edit);
+                    Button btn_delete = (Button)mView.findViewById(R.id.btn_delete);
+
+                    btn_delete.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Idea idea = ideaList.get(position);
+                            String id = ideaIdList.get(position);
+                            mDatabaseReference = mFirebaseDatabase.getReference("subject").child(id);
+                            mDatabaseReference.removeValue();
+                            if(!idea.ContentImageUrl.equals("")){
+                                mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.ContentImageUrl);
+                                mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(mContext, "삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
-                        });
-                    }
+                        }
+                    });
+
+                    btn_edit.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(mContext, EditContentActivity.class);
+                            Idea idea = ideaList.get(position);
+                            intent.putExtra("Content", idea.Content);
+                            intent.putExtra("ContentImageUrl", idea.ContentImageUrl);
+                            intent.putExtra("Id", ideaIdList.get(position));
+                            intent.putExtra("Idea", idea);
+                            mContext.startActivity(intent);
+                        }
+                    });
+
+                    mBuilder.setView(mView);
+                    AlertDialog dialog = mBuilder.create();
+                    dialog.show();
                 }
             });
         }
@@ -145,9 +162,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
         private ImageView ivProfilePhoto;
         private ImageView ivContent;
         private Button btnHeart;
-        private Button btnComment;
-        private Button btn_edit;
-        private Button btn_delete;
+        private ImageButton ib_menu;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -157,9 +172,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
             ivProfilePhoto = (ImageView)itemView.findViewById(R.id.ivProfilePhoto);
             ivContent = (ImageView)itemView.findViewById(R.id.ivContent);
             btnHeart = (Button)itemView.findViewById(R.id.btnHeart);
-            btnComment = (Button)itemView.findViewById(R.id.btnComment);
-            btn_edit = (Button)itemView.findViewById(R.id.btn_edit);
-            btn_delete = (Button)itemView.findViewById(R.id.btn_delete);
+            ib_menu = (ImageButton)itemView.findViewById(R.id.ib_menu);
         }
     }
 }

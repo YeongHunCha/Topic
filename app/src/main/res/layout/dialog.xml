@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lorem ipsum"
+        android:textColor="#000000"
+        android:textSize="25dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="20dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#3cb49c"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingLeft="25dp"
+            android:text="Edit"
+            android:id="@+id/btn_edit"
+            android:background="#ffffff"
+            android:textColor="#573a7d"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="3dp"
+
+            android:background="#bfbfbf"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_delete"
+            android:gravity="center_vertical"
+            android:paddingLeft="25dp"
+            android:text="Delete"
+            android:background="#ffffff"
+            android:textColor="#ec407a"/>
+    </LinearLayout>
+
+</LinearLayout>
