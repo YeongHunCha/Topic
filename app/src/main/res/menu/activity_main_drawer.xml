@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_past_topic"
+            android:title="Show Past Topic" />
+        <item
+            android:id="@+id/nav_setting"
+            android:title="Setting" />
+    </group>
+    <item android:title="Priority">
+        <menu>
+            <item
+                android:id="@+id/nav_priority_all"
+                android:title="All" />
+            <item
+                android:id="@+id/nav_priority_friends"
+                android:title="Friends" />
+
+            <item
+                android:id="@+id/nav_priority_rank"
+                android:title="Rank" />
+        </menu>
+    </item>
+    <item android:title="Profile">
+        <menu>
+            <item
+                android:id="@+id/nav_profile_edit"
+                android:title="Profile Edit" />
+            <item
+                android:id="@+id/nav_profile_logout"
+                android:title="Logout" />
+        </menu>
+    </item>
+
+</menu>

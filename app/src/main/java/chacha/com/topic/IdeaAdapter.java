@@ -46,6 +46,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     private DatabaseReference mDatabaseReference;
     private FirebaseStorage mFirebaseStorage = FirebaseStorage.getInstance();
     private StorageReference mStorageReference;
+    private AlertDialog dialog;
 
 
     public IdeaAdapter(ArrayList<Idea> ideaList,ArrayList<String> idealIdList, ArrayList<String> hearts, Context mContext) {
@@ -87,10 +88,12 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                                 mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        Toast.makeText(mContext, "삭제되었습니다.", Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(mContext, "삭제되었습니다.", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
+                            Toast.makeText(mContext, "삭제하였습니다.", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
                         }
                     });
 
@@ -108,7 +111,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                     });
 
                     mBuilder.setView(mView);
-                    AlertDialog dialog = mBuilder.create();
+                    dialog = mBuilder.create();
                     dialog.show();
                 }
             });
