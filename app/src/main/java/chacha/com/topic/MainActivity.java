@@ -1,18 +1,23 @@
 package chacha.com.topic;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +41,8 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
     private String TAG = "MainActivity";
+    private BackPressCloseHandler backPressCloseHandler;
+
     private FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
     private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -55,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Backpress Handler
+        backPressCloseHandler = new BackPressCloseHandler(this);
+
         // navigation view
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         ImageView iv = (ImageView)findViewById(R.id.iv_bg);
@@ -69,6 +79,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        //set profile
+        View v = navigationView.getHeaderView(0);
+        TextView tvName = (TextView)v.findViewById(R.id.tv_profile_name);
+        TextView tvEmail = (TextView)v.findViewById(R.id.tv_profile_email);
+        ImageView ivProfilePhoto = (ImageView)v.findViewById(R.id.iv_profile_photo);
+
+        if(TextUtils.isEmpty(mFirebaseUser.getDisplayName())){
+            tvName.setText("* 이름 없음. 프로필을 수정 해주세요!");
+        }else{
+            tvName.setText(mFirebaseUser.getDisplayName());
+        }
+        tvEmail.setText(mFirebaseUser.getEmail());
+        if(mFirebaseUser.getPhotoUrl()==null){
+            Glide.with(this).load(R.drawable.userplaceholder).fitCenter().into(ivProfilePhoto);
+        }else{
+            Glide.with(this).load(mFirebaseUser.getPhotoUrl()).fitCenter().into(ivProfilePhoto);
+        }
+
+
         navigationView.setNavigationItemSelectedListener(this);
 
 
@@ -222,7 +252,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+//            super.onBackPressed();
+            backPressCloseHandler.onBackPressed();
         }
     }
 
@@ -245,9 +276,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_profile_edit) {
 
         } else if (id == R.id.nav_profile_logout) {
-            mFirebaseAuth.signOut();
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-            Toast.makeText(this, "로그아웃 하였습니다.", Toast.LENGTH_SHORT).show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final AlertDialog dialog = builder.setMessage("로그아웃 하시겠습니까?")
+                    .setPositiveButton("네, 로그아웃하겠습니다.", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mFirebaseAuth.signOut();
+                            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                            Toast.makeText(MainActivity.this, "로그아웃 하였습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("취소", null)
+                    .create();
+
+
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#ec407a"));
+                }
+            });
+            dialog.show();
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
