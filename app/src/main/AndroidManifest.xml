@@ -19,6 +19,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".WritingActivity" />
         <activity android:name=".EditContentActivity" />
+        <activity android:name=".ProfileEditActivity"></activity>
     </application>
 
 </manifest>

@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").push();
         HashMap<String, String> userData= new HashMap<String, String>();
         if(mFirebaseUser.getDisplayName()==null){
-            userData.put("Name", mFirebaseUser.getEmail());
+            userData.put("Name", "");
         }else{
             userData.put("Name", mFirebaseUser.getDisplayName());
         }
@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_priority_rank) {
 
         } else if (id == R.id.nav_profile_edit) {
-
+            startActivity(new Intent(this, ProfileEditActivity.class));
         } else if (id == R.id.nav_profile_logout) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             final AlertDialog dialog = builder.setMessage("로그아웃 하시겠습니까?")
