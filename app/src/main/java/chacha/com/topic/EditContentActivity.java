@@ -44,6 +44,7 @@ public class EditContentActivity extends AppCompatActivity {
                 idea.Content = etEditContent.getText().toString();
                 mDatabaseReference = mFirebaseDatabase.getReference("subject").child(id).child("content");
                 mDatabaseReference.setValue(idea);
+                finish();
             }
         });
 
@@ -51,8 +52,7 @@ public class EditContentActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
+                finish();
             }
         });
     }

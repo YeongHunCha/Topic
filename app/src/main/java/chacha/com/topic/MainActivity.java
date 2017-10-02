@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //Backpress Handler
         backPressCloseHandler = new BackPressCloseHandler(this);
 
@@ -79,25 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-
-        //set profile
-        View v = navigationView.getHeaderView(0);
-        TextView tvName = (TextView)v.findViewById(R.id.tv_profile_name);
-        TextView tvEmail = (TextView)v.findViewById(R.id.tv_profile_email);
-        ImageView ivProfilePhoto = (ImageView)v.findViewById(R.id.iv_profile_photo);
-
-        if(TextUtils.isEmpty(mFirebaseUser.getDisplayName())){
-            tvName.setText("* 이름 없음. 프로필을 수정 해주세요!");
-        }else{
-            tvName.setText(mFirebaseUser.getDisplayName());
-        }
-        tvEmail.setText(mFirebaseUser.getEmail());
-        if(mFirebaseUser.getPhotoUrl()==null){
-            Glide.with(this).load(R.drawable.userplaceholder).fitCenter().into(ivProfilePhoto);
-        }else{
-            Glide.with(this).load(mFirebaseUser.getPhotoUrl()).fitCenter().into(ivProfilePhoto);
-        }
-
 
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -135,6 +117,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+        //set profile
+        View v = navigationView.getHeaderView(0);
+        TextView tvName = (TextView)v.findViewById(R.id.tv_profile_name);
+        TextView tvEmail = (TextView)v.findViewById(R.id.tv_profile_email);
+        ImageView ivProfilePhoto = (ImageView)v.findViewById(R.id.iv_profile_photo);
+
+        Log.d(TAG, "@@@ : "+userList);
+        if(TextUtils.isEmpty(mFirebaseUser.getDisplayName())){
+            tvName.setText("* 이름 없음. 프로필을 수정 해주세요!");
+        }else{
+            tvName.setText(mFirebaseUser.getDisplayName());
+        }
+        tvEmail.setText(mFirebaseUser.getEmail());
+        if(mFirebaseUser.getPhotoUrl()==null){
+            Glide.with(this).load(R.drawable.userplaceholder).fitCenter().into(ivProfilePhoto);
+        }else{
+            Glide.with(this).load(mFirebaseUser.getPhotoUrl()).fitCenter().into(ivProfilePhoto);
+        }
 
         //RecyclerView 셋업
         RecyclerView rv = (RecyclerView)findViewById(R.id.rv);
@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rv.setHasFixedSize(true);
         mAdapter = new IdeaAdapter(ideaList, ideaIdList, hearts, MainActivity.this);
         rv.setAdapter(mAdapter);
+        rv.setNestedScrollingEnabled(false);
 
         //floatingBtn
         FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.btnAddPost);
@@ -264,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_past_topic) {
-            // Handle the camera action
+
         } else if (id == R.id.nav_setting) {
 
         } else if (id == R.id.nav_priority_all) {
