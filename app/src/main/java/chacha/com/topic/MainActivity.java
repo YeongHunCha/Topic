@@ -3,6 +3,7 @@ package chacha.com.topic;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private long profileCount;
     private boolean existSameEmail;
 
+    private RecyclerView.LayoutManager lm;
     private RecyclerView.Adapter mAdapter;
 
     private ArrayList<User> userList;
@@ -63,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
 
-        //Backpress Handler
+        // Backpress Handler
         backPressCloseHandler = new BackPressCloseHandler(this);
 
         // navigation view
@@ -82,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         navigationView.setNavigationItemSelectedListener(this);
-
-
 
         userList = new ArrayList<>();
         ideaList = new ArrayList<>();
@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+
         //set profile
         View v = navigationView.getHeaderView(0);
         TextView tvName = (TextView)v.findViewById(R.id.tv_profile_name);
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //RecyclerView 셋업
         RecyclerView rv = (RecyclerView)findViewById(R.id.rv);
-        RecyclerView.LayoutManager lm = new LinearLayoutManager(MainActivity.this, 1, false);
+        lm = new LinearLayoutManager(MainActivity.this, 1, false);
         rv.setLayoutManager(lm);
         rv.setHasFixedSize(true);
         mAdapter = new IdeaAdapter(ideaList, ideaIdList, hearts, MainActivity.this);
@@ -218,17 +219,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ideaList.add(idea);
                 ideaIdList.add(ideaId);
                 hearts.add(String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
+
                 mAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Idea idea = dataSnapshot.child("content").getValue(Idea.class);
+                int index = ideaIdList.indexOf(dataSnapshot.getKey());
+                ideaList.set(index, idea);
+                hearts.set(index, String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
 
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                int index = ideaIdList.indexOf(dataSnapshot.getKey());
+                ideaList.remove(index);
+                hearts.remove(index);
 
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
