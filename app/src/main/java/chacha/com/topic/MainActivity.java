@@ -3,12 +3,12 @@ package chacha.com.topic;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,11 +18,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -139,7 +136,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         //RecyclerView 셋업
-        rv = (RecyclerView)findViewById(R.id.rv);
+        final NestedScrollView nsv = (NestedScrollView)findViewById(R.id.nsv);
+
+        rv = (RecyclerView) findViewById(R.id.rv);
         lm = new LinearLayoutManager(MainActivity.this, 1, false);
         rv.setLayoutManager(lm);
         rv.setHasFixedSize(true);
@@ -152,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                nsv.scrollTo(0,0);
                 startActivity(new Intent(MainActivity.this, WritingActivity.class));
             }
         });
@@ -212,14 +212,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void loadContents() {
         mDatabaseReference = mFirebaseDatabase.getReference("Subject");
-        mDatabaseReference.addChildEventListener(new ChildEventListener() {
+        mDatabaseReference.orderByChild("Content/createdAt").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Idea idea = dataSnapshot.child("Content").getValue(Idea.class);
                 String ideaId = dataSnapshot.getKey();
-                ideaList.add(idea);
-                ideaIdList.add(ideaId);
-                hearts.add(String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
+                ideaList.add(0,idea);
+                ideaIdList.add(0,ideaId);
+                hearts.add(0,String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ideaList.remove(index);
                 ideaIdList.remove(index);
                 hearts.remove(index);
-                mAdapter.notifyItemChanged(index);
+                mAdapter.notifyItemRemoved(index);
             }
 
             @Override

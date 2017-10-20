@@ -77,11 +77,12 @@ public class WritingActivity extends AppCompatActivity {
                 final ProgressBar pb  = (ProgressBar)findViewById(R.id.pb);
                 pb.setVisibility(View.VISIBLE);
                 Calendar c = Calendar.getInstance();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
                 final String strDate = sdf.format(c.getTime());
+                final String timeStamp = String.valueOf(Long.parseLong("99999999999999")-Long.parseLong(strDate));
                 final String content = etIdea.getText().toString();
                 if(uri==null){
-                    Idea idea = new Idea(currentUserName, currentUserPhotoUrl, content, "", mFirebaseUser.getEmail(), strDate);
+                    Idea idea = new Idea(currentUserName, currentUserPhotoUrl, content, "", mFirebaseUser.getEmail(), strDate, timeStamp);
                     mDatabaseReference.setValue(idea.toMap());
                     finish();
                 } else {
@@ -90,7 +91,7 @@ public class WritingActivity extends AppCompatActivity {
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             //noinspection VisibleForTests
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                            Idea idea = new Idea(currentUserName, currentUserPhotoUrl, content, String.valueOf(downloadUrl), mFirebaseUser.getEmail(), strDate);
+                            Idea idea = new Idea(currentUserName, currentUserPhotoUrl, content, String.valueOf(downloadUrl), mFirebaseUser.getEmail(), strDate, timeStamp);
                             mDatabaseReference.setValue(idea.toMap());
                             pb.setVisibility(View.GONE);
                             finish();

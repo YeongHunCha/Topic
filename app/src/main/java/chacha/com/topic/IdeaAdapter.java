@@ -64,7 +64,8 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position1) {
+        final int position = holder.getAdapterPosition();
         if(mFirebaseUser.getEmail().equals(ideaList.get(position).writer)){
             holder.ib_menu.setVisibility(View.VISIBLE);
             holder.ib_menu.setOnClickListener(new View.OnClickListener() {

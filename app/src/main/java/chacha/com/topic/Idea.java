@@ -15,19 +15,21 @@ public class Idea implements Serializable{
     String profileName;
     String writer;
     String createdAt;
+    String timeStamp;
 
     public Idea(){}
 
     //getter, setter 넣으니깐 api24에서 에러
     //getter, setter 없으니깐 api19에서 에러
 
-    public Idea(String profileName, String profilePhoto, String content, String contentImageUrl, String writer, String createdAt) {
+    public Idea(String profileName, String profilePhoto, String content, String contentImageUrl, String writer, String createdAt, String timeStamp) {
         this.profilePhoto = profilePhoto;
         this.content = content;
         this.contentImageUrl = contentImageUrl;
         this.profileName = profileName;
         this.writer = writer;
         this.createdAt = createdAt;
+        this.timeStamp = timeStamp;
     }
 
     public Map<String, Object> toMap() {
@@ -38,6 +40,7 @@ public class Idea implements Serializable{
         result.put("profileName", profileName);
         result.put("writer", writer);
         result.put("createdAt", createdAt);
+        result.put("timeStamp", timeStamp);
 
         return result;
     }
@@ -59,4 +62,7 @@ public class Idea implements Serializable{
 
     public String getCreatedAt() {        return createdAt;    }
     public void setCreatedAt(String createdAt) {        this.createdAt = createdAt;    }
+
+    public String getTimeStamp() {        return timeStamp;    }
+    public void setTimeStamp(String timeStamp) {        this.timeStamp = timeStamp;    }
 }
