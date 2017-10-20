@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private long profileCount;
     private boolean existSameEmail;
 
+    private RecyclerView rv;
     private RecyclerView.LayoutManager lm;
     private RecyclerView.Adapter mAdapter;
 
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         //RecyclerView 셋업
-        RecyclerView rv = (RecyclerView)findViewById(R.id.rv);
+        rv = (RecyclerView)findViewById(R.id.rv);
         lm = new LinearLayoutManager(MainActivity.this, 1, false);
         rv.setLayoutManager(lm);
         rv.setHasFixedSize(true);
@@ -210,36 +211,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void loadContents() {
-        mDatabaseReference = mFirebaseDatabase.getReference("subject");
+        mDatabaseReference = mFirebaseDatabase.getReference("Subject");
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Idea idea = dataSnapshot.child("content").getValue(Idea.class);
+                Idea idea = dataSnapshot.child("Content").getValue(Idea.class);
                 String ideaId = dataSnapshot.getKey();
                 ideaList.add(idea);
                 ideaIdList.add(ideaId);
                 hearts.add(String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
-
                 mAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Idea idea = dataSnapshot.child("content").getValue(Idea.class);
+                Idea idea = dataSnapshot.child("Content").getValue(Idea.class);
                 int index = ideaIdList.indexOf(dataSnapshot.getKey());
                 ideaList.set(index, idea);
                 hearts.set(index, String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
-
-                mAdapter.notifyDataSetChanged();
+                mAdapter.notifyItemChanged(index);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 int index = ideaIdList.indexOf(dataSnapshot.getKey());
                 ideaList.remove(index);
+                ideaIdList.remove(index);
                 hearts.remove(index);
-
-                mAdapter.notifyDataSetChanged();
+                mAdapter.notifyItemChanged(index);
             }
 
             @Override

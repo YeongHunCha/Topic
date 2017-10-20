@@ -65,7 +65,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        if(mFirebaseUser.getEmail().equals(ideaList.get(position).Writer)){
+        if(mFirebaseUser.getEmail().equals(ideaList.get(position).writer)){
             holder.ib_menu.setVisibility(View.VISIBLE);
             holder.ib_menu.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -81,10 +81,10 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                         public void onClick(View v) {
                             Idea idea = ideaList.get(position);
                             String id = ideaIdList.get(position);
-                            mDatabaseReference = mFirebaseDatabase.getReference("subject").child(id);
+                            mDatabaseReference = mFirebaseDatabase.getReference("Subject").child(id);
                             mDatabaseReference.removeValue();
-                            if(!idea.ContentImageUrl.equals("")){
-                                mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.ContentImageUrl);
+                            if(!idea.contentImageUrl.equals("")){
+                                mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.contentImageUrl);
                                 mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -102,11 +102,10 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                         public void onClick(View v) {
                             Intent intent = new Intent(mContext, EditContentActivity.class);
                             Idea idea = ideaList.get(position);
-                            intent.putExtra("Content", idea.Content);
-                            intent.putExtra("ContentImageUrl", idea.ContentImageUrl);
                             intent.putExtra("Id", ideaIdList.get(position));
                             intent.putExtra("Idea", idea);
                             mContext.startActivity(intent);
+                            dialog.dismiss();
                         }
                     });
 
@@ -117,24 +116,26 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
             });
         }
 
-        holder.tvContent.setText(ideaList.get(position).Content);
+        holder.tvContent.setText(ideaList.get(position).content);
 
-        holder.tvProfileName.setText(ideaList.get(position).ProfileName);
+        holder.tvProfileName.setText(ideaList.get(position).profileName);
 
-        if(ideaList.get(position).ContentImageUrl==null|| TextUtils.isEmpty(ideaList.get(position).ContentImageUrl)){
+        if(ideaList.get(position).contentImageUrl==null|| TextUtils.isEmpty(ideaList.get(position).contentImageUrl)){
             Glide.with(mContext).load("").fitCenter().into(holder.ivContent);
         }else{
             Glide
                     .with(mContext)
-                    .load(ideaList.get(position).ContentImageUrl)
-                    .thumbnail( 0.1f )
+                    .load(ideaList.get(position).contentImageUrl)
+//                    .thumbnail( 0.1f )
+                    .fitCenter()
                     .into(holder.ivContent);
         }
 
-        if(ideaList.get(position).ProfilePhoto==null||TextUtils.isEmpty(ideaList.get(position).ProfilePhoto)){
+
+        if(ideaList.get(position).profilePhoto==null||TextUtils.isEmpty(ideaList.get(position).profilePhoto)){
             Glide.with(mContext).load(R.drawable.userplaceholder).fitCenter().into(holder.ivProfilePhoto);
         }else{
-            Glide.with(mContext).load(ideaList.get(position).ProfilePhoto).into(holder.ivProfilePhoto);
+            Glide.with(mContext).load(ideaList.get(position).profilePhoto).into(holder.ivProfilePhoto);
         }
 
         //좋아요 뷰
@@ -145,7 +146,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                 Calendar c = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 final String strDate = sdf.format(c.getTime());
-                mDatabaseReference = mFirebaseDatabase.getReference("subject").child(ideaIdList.get(position)).child("lover").child(strDate);
+                mDatabaseReference = mFirebaseDatabase.getReference("Subject").child(ideaIdList.get(position)).child("lover").child(strDate);
                 mDatabaseReference.setValue(mFirebaseUser.getEmail());
             }
         });

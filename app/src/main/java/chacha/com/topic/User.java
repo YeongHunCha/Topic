@@ -18,7 +18,6 @@ public class User {
     public String getName() {
         return Name;
     }
-
     public void setName(String name) {
         Name = name;
     }
@@ -26,7 +25,6 @@ public class User {
     public String getEmail() {
         return Email;
     }
-
     public void setEmail(String email) {
         Email = email;
     }
@@ -34,7 +32,6 @@ public class User {
     public String getPhotoUrl() {
         return PhotoUrl;
     }
-
     public void setPhotoUrl(String photoUrl) {
         PhotoUrl = photoUrl;
     }

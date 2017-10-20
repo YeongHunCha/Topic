@@ -20,6 +20,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -54,8 +55,6 @@ public class WritingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_writing);
 
-        Log.d(TAG, "@@ mF.getEmail : "+mFirebaseUser.getEmail());
-
         userList = new ArrayList<>();
         callProfile();
 
@@ -65,7 +64,7 @@ public class WritingActivity extends AppCompatActivity {
         etIdea = (EditText)findViewById(R.id.etIdea);
         ivIdea = (ImageView)findViewById(R.id.ivIdea);
 
-        mDatabaseReference = mFirebaseDatabase.getReference("subject");
+        mDatabaseReference = mFirebaseDatabase.getReference("Subject").push().child("Content");
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,29 +79,19 @@ public class WritingActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 final String strDate = sdf.format(c.getTime());
-                final String idea = etIdea.getText().toString();
+                final String content = etIdea.getText().toString();
                 if(uri==null){
-                    HashMap<String, String> post = new HashMap<String, String>();
-                    post.put("ContentImageUrl", "");
-                    post.put("Content", idea);
-                    post.put("ProfileName", currentUserName);
-                    post.put("ProfilePhoto", currentUserPhotoUrl);
-                    post.put("Writer", mFirebaseUser.getEmail());
-                    mDatabaseReference.child(strDate).child("content").setValue(post);
+                    Idea idea = new Idea(currentUserName, currentUserPhotoUrl, content, "", mFirebaseUser.getEmail(), strDate);
+                    mDatabaseReference.setValue(idea.toMap());
                     finish();
                 } else {
-                    mStorageReference.child("subject").child(mFirebaseUser.getEmail()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    mStorageReference.child("Subject").child(mFirebaseUser.getEmail()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             //noinspection VisibleForTests
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                            HashMap<String, String> post = new HashMap<String, String>();
-                            post.put("ContentImageUrl", String.valueOf(downloadUrl));
-                            post.put("Content", idea);
-                            post.put("ProfileName", currentUserName);
-                            post.put("ProfilePhoto", currentUserPhotoUrl);
-                            post.put("Writer", mFirebaseUser.getEmail());
-                            mDatabaseReference.child(strDate).child("content").setValue(post);
+                            Idea idea = new Idea(currentUserName, currentUserPhotoUrl, content, String.valueOf(downloadUrl), mFirebaseUser.getEmail(), strDate);
+                            mDatabaseReference.setValue(idea.toMap());
                             pb.setVisibility(View.GONE);
                             finish();
                         }
@@ -117,9 +106,6 @@ public class WritingActivity extends AppCompatActivity {
                 startActivityForResult(intent, 1);
             }
         });
-
-
-
     }
 
     @Override
@@ -133,17 +119,16 @@ public class WritingActivity extends AppCompatActivity {
 
     public void callProfile(){
         mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile");
+
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 User user = dataSnapshot.getValue(User.class);
                 userList.add(user);
                 for(User e : userList){
-                    Log.d(TAG, "@@ e.email: "+e.Email);
                     if(mFirebaseUser.getEmail().equals(e.Email)){
                         currentUserName = e.Name;
                         currentUserPhotoUrl = e.PhotoUrl;
-                        Log.d(TAG, "@@ currentName : " +currentUserName);
                     }
                 }
             }
@@ -152,17 +137,14 @@ public class WritingActivity extends AppCompatActivity {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
             }
-
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
 
             }
-
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
