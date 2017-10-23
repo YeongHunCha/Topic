@@ -32,6 +32,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -57,6 +58,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ArrayList<Idea> ideaList;
     private ArrayList<String> ideaIdList;
     private ArrayList<String> hearts;
+
+    private String sort = "Content/createdAt";
+    ChildEventListener cel;
+    Query query;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView tvEmail = (TextView)v.findViewById(R.id.tv_profile_email);
         ImageView ivProfilePhoto = (ImageView)v.findViewById(R.id.iv_profile_photo);
 
-        Log.d(TAG, "@@@ : "+userList);
         if(TextUtils.isEmpty(mFirebaseUser.getDisplayName())){
             tvName.setText("* 이름 없음. 프로필을 수정 해주세요!");
         }else{
@@ -157,13 +161,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         //content load from firebase
-        loadContents();
+        loadContents("Content/timeStamp");
     }
 
     public void addUser(){  //현재 유저를 firebase user/profile카테고리에 삽입
 
         mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").push();
-        HashMap<String, String> userData= new HashMap<String, String>();
+        HashMap<String, String> userData = new HashMap<String, String>();
         if(mFirebaseUser.getDisplayName()==null){
             userData.put("Name", "");
         }else{
@@ -210,16 +214,92 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    public void loadContents() {
+    /*
+     *   navigation view method
+     */
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+//            super.onBackPressed();
+            backPressCloseHandler.onBackPressed();
+        }
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_past_topic) {
+
+        } else if (id == R.id.nav_setting) {
+
+        } else if (id == R.id.nav_priority_all) {
+            sort = "Content/createdAt";
+            Toast.makeText(this, "오래된 것 우선", Toast.LENGTH_SHORT).show();
+            query.removeEventListener(cel);
+            loadContents(sort);
+        } else if (id == R.id.nav_priority_friends) {
+            sort = "Content/writer";
+            Toast.makeText(this, "사용자 이름 우선", Toast.LENGTH_SHORT).show();
+            query.removeEventListener(cel);
+            loadContents(sort);
+        } else if (id == R.id.nav_priority_rank) {
+            sort = "Content/timeStamp";
+            query.removeEventListener(cel);
+            Toast.makeText(this, "최신 우선", Toast.LENGTH_SHORT).show();
+            loadContents(sort);
+        } else if (id == R.id.nav_profile_edit) {
+            startActivity(new Intent(this, ProfileEditActivity.class));
+        } else if (id == R.id.nav_profile_logout) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final AlertDialog dialog = builder.setMessage("로그아웃 하시겠습니까?")
+                    .setPositiveButton("네, 로그아웃하겠습니다.", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mFirebaseAuth.signOut();
+                            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                            Toast.makeText(MainActivity.this, "로그아웃 하였습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("취소", null)
+                    .create();
+
+
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#ec407a"));
+                }
+            });
+            dialog.show();
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    public void loadContents(String sort){
+        ideaList.clear();
+        ideaIdList.clear();
+        hearts.clear();
+        Log.d(TAG, "@@ sort : "+ sort);
         mDatabaseReference = mFirebaseDatabase.getReference("Subject");
-        mDatabaseReference.orderByChild("Content/createdAt").addChildEventListener(new ChildEventListener() {
+        query = mDatabaseReference.orderByChild(sort);
+        cel = query.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Idea idea = dataSnapshot.child("Content").getValue(Idea.class);
                 String ideaId = dataSnapshot.getKey();
-                ideaList.add(0,idea);
-                ideaIdList.add(0,ideaId);
-                hearts.add(0,String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
+                ideaList.add(idea);
+                ideaIdList.add(ideaId);
+                hearts.add(String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -251,68 +331,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
-    }
 
 
-    /*
-     *   navigation view method
-     */
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-//            super.onBackPressed();
-            backPressCloseHandler.onBackPressed();
-        }
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_past_topic) {
-
-        } else if (id == R.id.nav_setting) {
-
-        } else if (id == R.id.nav_priority_all) {
-
-        } else if (id == R.id.nav_priority_friends) {
-
-        } else if (id == R.id.nav_priority_rank) {
-
-        } else if (id == R.id.nav_profile_edit) {
-            startActivity(new Intent(this, ProfileEditActivity.class));
-        } else if (id == R.id.nav_profile_logout) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            final AlertDialog dialog = builder.setMessage("로그아웃 하시겠습니까?")
-                    .setPositiveButton("네, 로그아웃하겠습니다.", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mFirebaseAuth.signOut();
-                            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                            Toast.makeText(MainActivity.this, "로그아웃 하였습니다.", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton("취소", null)
-                    .create();
-
-
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface arg0) {
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#ec407a"));
-                }
-            });
-            dialog.show();
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 }
