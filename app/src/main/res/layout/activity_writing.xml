@@ -25,8 +25,8 @@
         android:hint="write your idea"
         android:id="@+id/etIdea"/>
     <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_below="@+id/etIdea"
         android:id="@+id/ivIdea"
         android:layout_marginTop="20dp"
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="25dp">
+        android:layout_marginBottom="15dp">
         <Button
             android:layout_width="100dp"
             android:layout_height="wrap_content"

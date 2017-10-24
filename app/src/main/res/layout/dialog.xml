@@ -19,8 +19,8 @@
         android:gravity="center">
         <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="#3cb49c"/>
+            android:layout_height="1.5dp"
+            android:background="#000000"/>
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,16 +29,13 @@
             android:text="Edit"
             android:id="@+id/btn_edit"
             android:background="#ffffff"
-            android:textColor="#573a7d"
-            />
+            android:textColor="#000000"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginBottom="3dp"
             android:layout_marginTop="3dp"
-
             android:background="#bfbfbf"/>
-
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

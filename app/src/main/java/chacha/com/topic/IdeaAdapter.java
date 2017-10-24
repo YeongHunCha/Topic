@@ -69,6 +69,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, final int position1) {
         final int position = holder.getAdapterPosition();
         if(mFirebaseUser.getEmail().equals(ideaList.get(position).writer)){
+            Log.d(TAG, "@@ user : "+mFirebaseUser.getEmail()+" / "+ideaList.get(position).writer);
             holder.ib_menu.setVisibility(View.VISIBLE);
             holder.ib_menu.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -82,6 +83,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                     btn_delete.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            Log.d(TAG, "@@ user : "+mFirebaseUser.getEmail()+" / "+ideaList.get(position).writer);
                             Idea idea = ideaList.get(position);
                             String id = ideaIdList.get(position);
                             mDatabaseReference = mFirebaseDatabase.getReference("Subject").child(id);
@@ -119,11 +121,18 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
             });
         }
 
-        holder.tvContent.setText(ideaList.get(position).content);
+        if(TextUtils.isEmpty(ideaList.get(position).content)){
+            holder.tvContent.setVisibility(View.GONE);
+        } else {
+            holder.tvContent.setText(ideaList.get(position).content);
+        }
 
-        holder.tvProfileName.setText(ideaList.get(position).profileName);
-
-        if(ideaList.get(position).contentImageUrl==null|| TextUtils.isEmpty(ideaList.get(position).contentImageUrl)){
+        if(TextUtils.isEmpty(ideaList.get(position).profileName)) {
+            holder.tvProfileName.setText(ideaList.get(position).writer);
+        } else {
+            holder.tvProfileName.setText(ideaList.get(position).profileName);
+        }
+        if(TextUtils.isEmpty(ideaList.get(position).contentImageUrl)){
             Glide.with(mContext).load("").fitCenter().into(holder.ivContent);
         }else{
             Glide
@@ -135,7 +144,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
         }
 
 
-        if(ideaList.get(position).profilePhoto==null||TextUtils.isEmpty(ideaList.get(position).profilePhoto)){
+        if(TextUtils.isEmpty(ideaList.get(position).profilePhoto)){
             Glide.with(mContext).load(R.drawable.userplaceholder).fitCenter().into(holder.ivProfilePhoto);
         }else{
             Glide.with(mContext).load(ideaList.get(position).profilePhoto).into(holder.ivProfilePhoto);
@@ -186,7 +195,6 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                 if(idea==null){
                     return Transaction.success(mutableData);
                 }
-
                 if(idea.loves.containsKey(mFirebaseUser.getUid())){
                     idea.loveCount = idea.loveCount - 1;
                     idea.descCount = idea.descCount + 1;

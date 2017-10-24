@@ -19,7 +19,9 @@
         android:hint="PASSWORD"
         android:layout_centerHorizontal="true"
         android:id="@+id/etPassword"
-        android:layout_below="@+id/etEmail"/>
+        android:layout_below="@+id/etEmail"
+        android:ems="10"
+        android:inputType="textPassword"/>
     <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"
@@ -45,4 +47,5 @@
         android:id="@+id/btnGoogleSignin">
 
     </com.google.android.gms.common.SignInButton>
+
 </RelativeLayout>
