@@ -52,8 +52,6 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     private StorageReference mStorageReference;
     private AlertDialog dialog;
     private User user;
-    private int index;
-
 
     public IdeaAdapter(ArrayList<Idea> ideaList, ArrayList<String> idealIdList, Context mContext) {
         this.ideaList = ideaList;
@@ -69,8 +67,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         if (mFirebaseUser.getUid().equals(ideaList.get(position).uid)) {
             holder.ib_menu.setVisibility(View.VISIBLE);
             holder.ib_menu.setOnClickListener(new View.OnClickListener() {
@@ -85,8 +82,8 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                     btn_delete.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Idea idea = ideaList.get(holder.getAdapterPosition());
-                            String id = ideaIdList.get(holder.getAdapterPosition());
+                            Idea idea = ideaList.get(position);
+                            String id = ideaIdList.get(position);
                             mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").child(id);
                             mDatabaseReference.removeValue();
                             if (!idea.contentImageUrl.equals("")) {
@@ -107,8 +104,8 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(mContext, EditContentActivity.class);
-                            Idea idea = ideaList.get(holder.getAdapterPosition());
-                            intent.putExtra("Id", ideaIdList.get(holder.getAdapterPosition()));
+                            Idea idea = ideaList.get(position);
+                            intent.putExtra("Id", ideaIdList.get(position));
                             intent.putExtra("Idea", idea);
                             mContext.startActivity(intent);
                             dialog.dismiss();
@@ -120,11 +117,15 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                     dialog.show();
                 }
             });
+        } else {
+            holder.ib_menu.setVisibility(View.GONE);
+            Log.d(TAG, "@@ else position : " + String.valueOf(position));
         }
 
         if (TextUtils.isEmpty(ideaList.get(position).content)) {
             holder.tvContent.setVisibility(View.GONE);
         } else {
+            holder.tvContent.setVisibility(View.VISIBLE);
             holder.tvContent.setText(ideaList.get(position).content);
         }
 
@@ -146,7 +147,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
         holder.btnHeart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").child(ideaIdList.get(holder.getAdapterPosition())).child("Content");
+                mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").child(ideaIdList.get(position)).child("Content");
                 clickedLove(mDatabaseReference);
             }
         });

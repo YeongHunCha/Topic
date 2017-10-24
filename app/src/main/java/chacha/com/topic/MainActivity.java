@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             query.removeEventListener(cel);
             loadContents(sort);
         } else if (id == R.id.nav_priority_rank) {
-            sort = "Content/descCount";
+            sort = "Content/loveCount";
             query.removeEventListener(cel);
             Toast.makeText(this, "좋아요 갯수 우선", Toast.LENGTH_SHORT).show();
             loadContents(sort);
