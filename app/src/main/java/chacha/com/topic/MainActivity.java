@@ -46,22 +46,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
     private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDatabaseReference;
+    private DatabaseReference userDatabaseReference;
 
     private long profileCount;
     private boolean existSameEmail;
 
-    NestedScrollView nsv;
+    private NestedScrollView nsv;
     private RecyclerView rv;
     private RecyclerView.LayoutManager lm;
     private RecyclerView.Adapter mAdapter;
+
+    //set profile
+    private View v;
+    private TextView tvName;
+    private TextView tvEmail;
+    private ImageView ivProfilePhoto;
 
     private ArrayList<User> userList;
     private ArrayList<Idea> ideaList;
     private ArrayList<String> ideaIdList;
 
     private String sort = "Content/createdAt";
-    ChildEventListener cel;
-    Query query;
+    private ChildEventListener cel;
+    private Query query;
+
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,22 +130,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         //set profile
-        View v = navigationView.getHeaderView(0);
-        TextView tvName = (TextView)v.findViewById(R.id.tv_profile_name);
-        TextView tvEmail = (TextView)v.findViewById(R.id.tv_profile_email);
-        ImageView ivProfilePhoto = (ImageView)v.findViewById(R.id.iv_profile_photo);
+        v = navigationView.getHeaderView(0);
+        tvName = (TextView)v.findViewById(R.id.tv_profile_name);
+        tvEmail = (TextView)v.findViewById(R.id.tv_profile_email);
+        ivProfilePhoto = (ImageView)v.findViewById(R.id.iv_profile_photo);
 
-        if(TextUtils.isEmpty(mFirebaseUser.getDisplayName())){
-            tvName.setText("* 이름 없음. 프로필을 수정 해주세요!");
-        }else{
-            tvName.setText(mFirebaseUser.getDisplayName());
-        }
-        tvEmail.setText(mFirebaseUser.getEmail());
-        if(mFirebaseUser.getPhotoUrl()==null){
-            Glide.with(this).load(R.drawable.userplaceholder).fitCenter().into(ivProfilePhoto);
-        }else{
-            Glide.with(this).load(mFirebaseUser.getPhotoUrl()).fitCenter().into(ivProfilePhoto);
-        }
+
+        userDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").child(mFirebaseUser.getUid());
+        getProfile(userDatabaseReference);
 
         //RecyclerView 셋업
         nsv = (NestedScrollView)findViewById(R.id.nsv);
@@ -165,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void addUser(){  //현재 유저를 firebase user/profile카테고리에 삽입
 
-        mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").push();
+        mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").child(mFirebaseUser.getUid());
         HashMap<String, String> userData = new HashMap<String, String>();
         if(mFirebaseUser.getDisplayName()==null){
             userData.put("Name", "");
@@ -235,15 +236,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_past_topic) {
 
-//        } else if (id == R.id.nav_setting) {
-
         } else if (id == R.id.nav_priority_all) {
             sort = "Content/createdAt";
             Toast.makeText(this, "오래된 것 우선", Toast.LENGTH_SHORT).show();
             query.removeEventListener(cel);
             loadContents(sort);
         } else if (id == R.id.nav_priority_friends) {
-            sort = "Content/writer";
+            sort = "Content/uid";
             Toast.makeText(this, "사용자 이름 우선", Toast.LENGTH_SHORT).show();
             query.removeEventListener(cel);
             loadContents(sort);
@@ -286,15 +285,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ideaList.clear();
         ideaIdList.clear();
         nsv.scrollTo(0,0);
-        mDatabaseReference = mFirebaseDatabase.getReference("Subject");
+        mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris");
         query = mDatabaseReference.orderByChild(sort);
         cel = query.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Idea idea = dataSnapshot.child("Content").getValue(Idea.class);
                 String ideaId = dataSnapshot.getKey();
-                ideaList.add(idea);
-                ideaIdList.add(ideaId);
+                ideaList.add(0,idea);
+                ideaIdList.add(0,ideaId);
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -324,7 +323,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+    }
+    public void getProfile(DatabaseReference ref){
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user = dataSnapshot.getValue(User.class);
+                if(user!=null){
+                    if(TextUtils.isEmpty(user.Name)){
+                        tvName.setText("* 이름 없음. 프로필을 수정 해주세요!");
+                    } else {
+                        tvName.setText(user.Name);
+                    }
+                    tvEmail.setText(mFirebaseUser.getEmail());
+                    if (TextUtils.isEmpty(user.PhotoUrl)) {
+                        Glide.with(MainActivity.this).load(R.drawable.userplaceholder).fitCenter().into(ivProfilePhoto);
+                    } else {
+                        Glide.with(MainActivity.this).load(user.PhotoUrl).fitCenter().into(ivProfilePhoto);
+                    }
+                }
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
     }
 }

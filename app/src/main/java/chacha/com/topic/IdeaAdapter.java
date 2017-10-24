@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -50,9 +51,11 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     private FirebaseStorage mFirebaseStorage = FirebaseStorage.getInstance();
     private StorageReference mStorageReference;
     private AlertDialog dialog;
+    private User user;
+    private int index;
 
 
-    public IdeaAdapter(ArrayList<Idea> ideaList,ArrayList<String> idealIdList, Context mContext) {
+    public IdeaAdapter(ArrayList<Idea> ideaList, ArrayList<String> idealIdList, Context mContext) {
         this.ideaList = ideaList;
         this.ideaIdList = idealIdList;
         this.mContext = mContext;
@@ -66,29 +69,27 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position1) {
-        final int position = holder.getAdapterPosition();
-        if(mFirebaseUser.getEmail().equals(ideaList.get(position).writer)){
-            Log.d(TAG, "@@ user : "+mFirebaseUser.getEmail()+" / "+ideaList.get(position).writer);
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+
+        if (mFirebaseUser.getUid().equals(ideaList.get(position).uid)) {
             holder.ib_menu.setVisibility(View.VISIBLE);
             holder.ib_menu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
                     AlertDialog.Builder mBuilder = new AlertDialog.Builder(mContext);
-                    View mView =  LayoutInflater.from(mContext).inflate(R.layout.dialog, null);
-                    Button btn_edit = (Button)mView.findViewById(R.id.btn_edit);
-                    Button btn_delete = (Button)mView.findViewById(R.id.btn_delete);
+                    View mView = LayoutInflater.from(mContext).inflate(R.layout.dialog, null);
+                    Button btn_edit = (Button) mView.findViewById(R.id.btn_edit);
+                    Button btn_delete = (Button) mView.findViewById(R.id.btn_delete);
 
                     btn_delete.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Log.d(TAG, "@@ user : "+mFirebaseUser.getEmail()+" / "+ideaList.get(position).writer);
-                            Idea idea = ideaList.get(position);
-                            String id = ideaIdList.get(position);
-                            mDatabaseReference = mFirebaseDatabase.getReference("Subject").child(id);
+                            Idea idea = ideaList.get(holder.getAdapterPosition());
+                            String id = ideaIdList.get(holder.getAdapterPosition());
+                            mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").child(id);
                             mDatabaseReference.removeValue();
-                            if(!idea.contentImageUrl.equals("")){
+                            if (!idea.contentImageUrl.equals("")) {
                                 mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.contentImageUrl);
                                 mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -106,8 +107,8 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(mContext, EditContentActivity.class);
-                            Idea idea = ideaList.get(position);
-                            intent.putExtra("Id", ideaIdList.get(position));
+                            Idea idea = ideaList.get(holder.getAdapterPosition());
+                            intent.putExtra("Id", ideaIdList.get(holder.getAdapterPosition()));
                             intent.putExtra("Idea", idea);
                             mContext.startActivity(intent);
                             dialog.dismiss();
@@ -121,20 +122,15 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
             });
         }
 
-        if(TextUtils.isEmpty(ideaList.get(position).content)){
+        if (TextUtils.isEmpty(ideaList.get(position).content)) {
             holder.tvContent.setVisibility(View.GONE);
         } else {
             holder.tvContent.setText(ideaList.get(position).content);
         }
 
-        if(TextUtils.isEmpty(ideaList.get(position).profileName)) {
-            holder.tvProfileName.setText(ideaList.get(position).writer);
-        } else {
-            holder.tvProfileName.setText(ideaList.get(position).profileName);
-        }
-        if(TextUtils.isEmpty(ideaList.get(position).contentImageUrl)){
+        if (TextUtils.isEmpty(ideaList.get(position).contentImageUrl)) {
             Glide.with(mContext).load("").fitCenter().into(holder.ivContent);
-        }else{
+        } else {
             Glide
                     .with(mContext)
                     .load(ideaList.get(position).contentImageUrl)
@@ -143,22 +139,20 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                     .into(holder.ivContent);
         }
 
-
-        if(TextUtils.isEmpty(ideaList.get(position).profilePhoto)){
-            Glide.with(mContext).load(R.drawable.userplaceholder).fitCenter().into(holder.ivProfilePhoto);
-        }else{
-            Glide.with(mContext).load(ideaList.get(position).profilePhoto).into(holder.ivProfilePhoto);
-        }
+        mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").child(ideaList.get(position).uid);
+        callProfile(mDatabaseReference, holder);
 
         //좋아요 뷰
         holder.btnHeart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDatabaseReference = mFirebaseDatabase.getReference("Subject").child(ideaIdList.get(position)).child("Content");
+                mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").child(ideaIdList.get(holder.getAdapterPosition())).child("Content");
                 clickedLove(mDatabaseReference);
             }
         });
         holder.tvContentHeart.setText(String.valueOf(ideaList.get(position).loveCount));
+
+
     }
 
     @Override
@@ -166,7 +160,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
         return ideaList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tvProfileName;
         private TextView tvContentHeart;
         private TextView tvContent;
@@ -177,25 +171,25 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tvProfileName = (TextView)itemView.findViewById(R.id.tvProfileName);
-            tvContentHeart = (TextView)itemView.findViewById(R.id.tvContentHeart);
-            tvContent = (TextView)itemView.findViewById(R.id.tvContent);
-            ivProfilePhoto = (ImageView)itemView.findViewById(R.id.ivProfilePhoto);
-            ivContent = (ImageView)itemView.findViewById(R.id.ivContent);
-            btnHeart = (Button)itemView.findViewById(R.id.btnHeart);
-            ib_menu = (ImageButton)itemView.findViewById(R.id.ib_menu);
+            tvProfileName = (TextView) itemView.findViewById(R.id.tvProfileName);
+            tvContentHeart = (TextView) itemView.findViewById(R.id.tvContentHeart);
+            tvContent = (TextView) itemView.findViewById(R.id.tvContent);
+            ivProfilePhoto = (ImageView) itemView.findViewById(R.id.ivProfilePhoto);
+            ivContent = (ImageView) itemView.findViewById(R.id.ivContent);
+            btnHeart = (Button) itemView.findViewById(R.id.btnHeart);
+            ib_menu = (ImageButton) itemView.findViewById(R.id.ib_menu);
         }
     }
 
-    public void clickedLove(DatabaseReference ref){
+    public void clickedLove(DatabaseReference ref) {
         ref.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
                 Idea idea = mutableData.getValue(Idea.class);
-                if(idea==null){
+                if (idea == null) {
                     return Transaction.success(mutableData);
                 }
-                if(idea.loves.containsKey(mFirebaseUser.getUid())){
+                if (idea.loves.containsKey(mFirebaseUser.getUid())) {
                     idea.loveCount = idea.loveCount - 1;
                     idea.descCount = idea.descCount + 1;
                     idea.loves.remove(mFirebaseUser.getUid());
@@ -213,6 +207,34 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                 Log.d(TAG, "@@ loveTransaction:onComplete:" + databaseError);
+            }
+        });
+    }
+
+    public void callProfile(DatabaseReference ref, final ViewHolder holder) {
+
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user = dataSnapshot.getValue(User.class);
+
+                if(user!=null){
+                    if (TextUtils.isEmpty(user.Name)) {
+                        holder.tvProfileName.setText(user.Email);
+                    } else {
+                        holder.tvProfileName.setText(user.Name);
+                    }
+                    if (TextUtils.isEmpty(user.PhotoUrl)) {
+                        Glide.with(mContext).load(R.drawable.userplaceholder).fitCenter().into(holder.ivProfilePhoto);
+                    } else {
+                        Glide.with(mContext).load(user.PhotoUrl).into(holder.ivProfilePhoto);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }

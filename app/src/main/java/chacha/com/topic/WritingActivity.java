@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -46,17 +48,10 @@ public class WritingActivity extends AppCompatActivity {
     private StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
     private Uri uri=null;
 
-    private ArrayList<User> userList;
-
-    private String currentUserName = "";
-    private String currentUserPhotoUrl = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_writing);
-
-        userList = new ArrayList<>();
-        callProfile();
 
         btnAddPhoto = (Button)findViewById(R.id.btnAddPhoto);
         btnConfirm = (Button)findViewById(R.id.btnConfirm);
@@ -64,7 +59,7 @@ public class WritingActivity extends AppCompatActivity {
         etIdea = (EditText)findViewById(R.id.etIdea);
         ivIdea = (ImageView)findViewById(R.id.ivIdea);
 
-        mDatabaseReference = mFirebaseDatabase.getReference("Subject").push().child("Content");
+        mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").push().child("Content");
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,7 +77,7 @@ public class WritingActivity extends AppCompatActivity {
                 final String timeStamp = String.valueOf(Long.parseLong("99999999999999")-Long.parseLong(strDate));
                 final String content = etIdea.getText().toString();
                 if(uri==null){
-                    Idea idea = new Idea(currentUserName, currentUserPhotoUrl, content, "", mFirebaseUser.getEmail(), strDate, timeStamp);
+                    Idea idea = new Idea(content, "", mFirebaseUser.getUid(), strDate, timeStamp);
                     mDatabaseReference.setValue(idea.toMap());
                     finish();
                 } else {
@@ -91,7 +86,7 @@ public class WritingActivity extends AppCompatActivity {
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             //noinspection VisibleForTests
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                            Idea idea = new Idea(currentUserName, currentUserPhotoUrl, content, String.valueOf(downloadUrl), mFirebaseUser.getEmail(), strDate, timeStamp);
+                            Idea idea = new Idea(content, String.valueOf(downloadUrl), mFirebaseUser.getUid(), strDate, timeStamp);
                             mDatabaseReference.setValue(idea.toMap());
                             pb.setVisibility(View.GONE);
                             finish();
@@ -116,40 +111,5 @@ public class WritingActivity extends AppCompatActivity {
             uri = data.getData();
             Picasso.with(WritingActivity.this).load(uri).fit().centerCrop().into(ivIdea);
         }
-    }
-
-    public void callProfile(){
-        mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile");
-
-        mDatabaseReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                User user = dataSnapshot.getValue(User.class);
-                userList.add(user);
-                for(User e : userList){
-                    if(mFirebaseUser.getEmail().equals(e.Email)){
-                        currentUserName = e.Name;
-                        currentUserPhotoUrl = e.PhotoUrl;
-                    }
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 }

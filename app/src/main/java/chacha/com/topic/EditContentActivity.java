@@ -40,7 +40,7 @@ public class EditContentActivity extends AppCompatActivity {
             @Override
             public void onClick(View Fv) {
                 idea.content = etEditContent.getText().toString();
-                mDatabaseReference = mFirebaseDatabase.getReference("Subject").child(id).child("Content");
+                mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").child(id).child("Content");
                 mDatabaseReference.updateChildren(idea.toMap());
                 finish();
             }
