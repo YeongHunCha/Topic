@@ -19,8 +19,12 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -38,7 +42,6 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     String TAG = "IdeaAdapter";
     private ArrayList<Idea> ideaList;
     private ArrayList<String> ideaIdList;
-    private ArrayList<String> hearts;
     private Context mContext;
     private FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -49,10 +52,9 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
     private AlertDialog dialog;
 
 
-    public IdeaAdapter(ArrayList<Idea> ideaList,ArrayList<String> idealIdList, ArrayList<String> hearts, Context mContext) {
+    public IdeaAdapter(ArrayList<Idea> ideaList,ArrayList<String> idealIdList, Context mContext) {
         this.ideaList = ideaList;
         this.ideaIdList = idealIdList;
-        this.hearts = hearts;
         this.mContext = mContext;
     }
 
@@ -143,16 +145,11 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
         holder.btnHeart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: 테스트 후 중복해서 좋아요를 누르지 못하는 코드 작성하기
-                Calendar c = Calendar.getInstance();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                final String strDate = sdf.format(c.getTime());
-                mDatabaseReference = mFirebaseDatabase.getReference("Subject").child(ideaIdList.get(position)).child("lover").child(strDate);
-                mDatabaseReference.setValue(mFirebaseUser.getEmail());
+                mDatabaseReference = mFirebaseDatabase.getReference("Subject").child(ideaIdList.get(position)).child("Content");
+                clickedLove(mDatabaseReference);
             }
         });
-
-        holder.tvContentHeart.setText(hearts.get(position));
+        holder.tvContentHeart.setText(String.valueOf(ideaList.get(position).loveCount));
     }
 
     @Override
@@ -179,5 +176,36 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
             btnHeart = (Button)itemView.findViewById(R.id.btnHeart);
             ib_menu = (ImageButton)itemView.findViewById(R.id.ib_menu);
         }
+    }
+
+    public void clickedLove(DatabaseReference ref){
+        ref.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Idea idea = mutableData.getValue(Idea.class);
+                if(idea==null){
+                    return Transaction.success(mutableData);
+                }
+
+                if(idea.loves.containsKey(mFirebaseUser.getUid())){
+                    idea.loveCount = idea.loveCount - 1;
+                    idea.descCount = idea.descCount + 1;
+                    idea.loves.remove(mFirebaseUser.getUid());
+//                    Toast.makeText(mContext, "좋아요!", Toast.LENGTH_SHORT).show();
+                } else {
+                    idea.loveCount = idea.loveCount + 1;
+                    idea.descCount = idea.descCount - 1;
+                    idea.loves.put(mFirebaseUser.getUid(), true);
+//                    Toast.makeText(mContext, "좋아요 취소", Toast.LENGTH_SHORT).show();
+                }
+                mutableData.setValue(idea);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                Log.d(TAG, "@@ loveTransaction:onComplete:" + databaseError);
+            }
+        });
     }
 }

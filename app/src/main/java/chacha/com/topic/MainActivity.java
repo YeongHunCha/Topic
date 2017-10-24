@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ArrayList<User> userList;
     private ArrayList<Idea> ideaList;
     private ArrayList<String> ideaIdList;
-    private ArrayList<String> hearts;
 
     private String sort = "Content/createdAt";
     ChildEventListener cel;
@@ -91,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userList = new ArrayList<>();
         ideaList = new ArrayList<>();
         ideaIdList = new ArrayList<>();
-        hearts = new ArrayList<>();
         existSameEmail = false;
 
         //로그인이 되어 있지 않으면 로그인 페이지로 이동
@@ -146,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         lm = new LinearLayoutManager(MainActivity.this, 1, false);
         rv.setLayoutManager(lm);
         rv.setHasFixedSize(true);
-        mAdapter = new IdeaAdapter(ideaList, ideaIdList, hearts, MainActivity.this);
+        mAdapter = new IdeaAdapter(ideaList, ideaIdList, MainActivity.this);
         rv.setAdapter(mAdapter);
         rv.setNestedScrollingEnabled(false);
 
@@ -236,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_past_topic) {
 
-        } else if (id == R.id.nav_setting) {
+//        } else if (id == R.id.nav_setting) {
 
         } else if (id == R.id.nav_priority_all) {
             sort = "Content/createdAt";
@@ -249,9 +247,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             query.removeEventListener(cel);
             loadContents(sort);
         } else if (id == R.id.nav_priority_rank) {
-            sort = "Content/timeStamp";
+            sort = "Content/descCount";
             query.removeEventListener(cel);
-            Toast.makeText(this, "최신 우선", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "좋아요 갯수 우선", Toast.LENGTH_SHORT).show();
             loadContents(sort);
         } else if (id == R.id.nav_profile_edit) {
             startActivity(new Intent(this, ProfileEditActivity.class));
@@ -277,9 +275,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             });
             dialog.show();
-
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -288,8 +284,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void loadContents(String sort){
         ideaList.clear();
         ideaIdList.clear();
-        hearts.clear();
-        Log.d(TAG, "@@ sort : "+ sort);
         mDatabaseReference = mFirebaseDatabase.getReference("Subject");
         query = mDatabaseReference.orderByChild(sort);
         cel = query.addChildEventListener(new ChildEventListener() {
@@ -299,7 +293,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String ideaId = dataSnapshot.getKey();
                 ideaList.add(idea);
                 ideaIdList.add(ideaId);
-                hearts.add(String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -308,7 +301,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Idea idea = dataSnapshot.child("Content").getValue(Idea.class);
                 int index = ideaIdList.indexOf(dataSnapshot.getKey());
                 ideaList.set(index, idea);
-                hearts.set(index, String.valueOf(dataSnapshot.child("lover").getChildrenCount()));
                 mAdapter.notifyItemChanged(index);
             }
 
@@ -317,7 +309,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 int index = ideaIdList.indexOf(dataSnapshot.getKey());
                 ideaList.remove(index);
                 ideaIdList.remove(index);
-                hearts.remove(index);
                 mAdapter.notifyItemRemoved(index);
             }
 

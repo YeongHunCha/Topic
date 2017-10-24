@@ -9,13 +9,16 @@ import java.util.Map;
  */
 
 public class Idea implements Serializable{
-    String profilePhoto;
-    String content;
-    String contentImageUrl;
-    String profileName;
-    String writer;
-    String createdAt;
-    String timeStamp;
+    public String profilePhoto;
+    public String content;
+    public String contentImageUrl;
+    public String profileName;
+    public String writer;
+    public String createdAt;
+    public String timeStamp;
+    public int loveCount = 0;
+    public int descCount = 9999;
+    public Map<String, Boolean> loves = new HashMap<>();
 
     public Idea(){}
 
@@ -41,6 +44,8 @@ public class Idea implements Serializable{
         result.put("writer", writer);
         result.put("createdAt", createdAt);
         result.put("timeStamp", timeStamp);
+        result.put("loveCount", loveCount);
+        result.put("loves", loves);
 
         return result;
     }
@@ -65,4 +70,18 @@ public class Idea implements Serializable{
 
     public String getTimeStamp() {        return timeStamp;    }
     public void setTimeStamp(String timeStamp) {        this.timeStamp = timeStamp;    }
+
+    public int getLoveCount() {
+        return loveCount;
+    }
+    public void setLoveCount(int loveCount) {
+        this.loveCount = loveCount;
+    }
+
+    public int getDescCount() {
+        return descCount;
+    }
+    public void setDescCount(int descCount) {
+        this.descCount = descCount;
+    }
 }
