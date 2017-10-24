@@ -50,8 +50,10 @@ public class ProfileEditActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseReference;
     private FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-    private StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
+    private FirebaseStorage mFirebaseStorage = FirebaseStorage.getInstance();
+    private StorageReference mStorageReference = mFirebaseStorage.getReference();
     User user;
+    String photoUrl;
 
     private Uri uri=null;
 
@@ -90,11 +92,24 @@ public class ProfileEditActivity extends AppCompatActivity {
             public void onClick(View v) {
                 pb.setVisibility(View.VISIBLE);
                 if(uri==null){
-                    User user = new User(mFirebaseUser.getEmail(), et_name.getText().toString(), "");
+                    User user = new User(mFirebaseUser.getEmail(), et_name.getText().toString(), photoUrl);
                     mDatabaseReference.setValue(user.toMap());
                     finish();
                 } else {
-                    mStorageReference.child("Profile").child(mFirebaseUser.getUid()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    if (!TextUtils.isEmpty(photoUrl)) {
+                        if(photoUrl.contains("https://firebasestorage.googleapis.com/v0/b/topic-5b5c9.appspot.com/o/Profile")){
+                            mStorageReference = mFirebaseStorage.getReferenceFromUrl(photoUrl);
+                            mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(ProfileEditActivity.this, "이전 사진이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else {
+                            Log.d(TAG, "It's not on firebaseStorage");
+                        }
+                    }
+                    mFirebaseStorage.getReference().child("Profile").child(mFirebaseUser.getUid()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             //noinspection VisibleForTests
@@ -115,6 +130,7 @@ public class ProfileEditActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 user = dataSnapshot.getValue(User.class);
+                photoUrl = user.PhotoUrl;
                 et_name.setText(user.Name);
                 tv_email.setText(user.Email);
                 if(TextUtils.isEmpty(user.PhotoUrl)){
