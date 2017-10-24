@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private long profileCount;
     private boolean existSameEmail;
 
+    NestedScrollView nsv;
     private RecyclerView rv;
     private RecyclerView.LayoutManager lm;
     private RecyclerView.Adapter mAdapter;
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         //RecyclerView 셋업
-        final NestedScrollView nsv = (NestedScrollView)findViewById(R.id.nsv);
+        nsv = (NestedScrollView)findViewById(R.id.nsv);
 
         rv = (RecyclerView) findViewById(R.id.rv);
         lm = new LinearLayoutManager(MainActivity.this, 1, false);
@@ -284,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void loadContents(String sort){
         ideaList.clear();
         ideaIdList.clear();
+        nsv.scrollTo(0,0);
         mDatabaseReference = mFirebaseDatabase.getReference("Subject");
         query = mDatabaseReference.orderByChild(sort);
         cel = query.addChildEventListener(new ChildEventListener() {

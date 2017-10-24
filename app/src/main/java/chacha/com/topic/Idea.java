@@ -45,6 +45,7 @@ public class Idea implements Serializable{
         result.put("createdAt", createdAt);
         result.put("timeStamp", timeStamp);
         result.put("loveCount", loveCount);
+        result.put("descCount", descCount);
         result.put("loves", loves);
 
         return result;
@@ -78,9 +79,7 @@ public class Idea implements Serializable{
         this.loveCount = loveCount;
     }
 
-    public int getDescCount() {
-        return descCount;
-    }
+    public int getDescCount() {        return descCount;    }
     public void setDescCount(int descCount) {
         this.descCount = descCount;
     }
