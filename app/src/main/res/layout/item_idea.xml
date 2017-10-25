@@ -79,10 +79,10 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/rlComment"
                 android:layout_below="@+id/rlContent"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:background="#fafafa">
+                android:background="#ffffff">
                 <Button
                     android:layout_width="25dp"
                     android:layout_height="25dp"

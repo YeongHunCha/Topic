@@ -5,32 +5,26 @@
         <item
             android:id="@+id/nav_past_topic"
             android:title="Show Past Topic" />
-        <!--<item-->
-            <!--android:id="@+id/nav_setting"-->
-            <!--android:title="Setting" />-->
     </group>
     <item android:title="Priority">
         <menu>
             <item
                 android:id="@+id/nav_priority_all"
-                android:title="All" />
-            <item
-                android:id="@+id/nav_priority_friends"
-                android:title="Friends" />
+                android:title="신규 포스트" />
 
             <item
                 android:id="@+id/nav_priority_rank"
-                android:title="Rank" />
+                android:title="인기 포스트" />
         </menu>
     </item>
     <item android:title="Profile">
         <menu>
             <item
                 android:id="@+id/nav_profile_edit"
-                android:title="Profile Edit" />
+                android:title="프로필 수정" />
             <item
                 android:id="@+id/nav_profile_logout"
-                android:title="Logout" />
+                android:title="로그아웃" />
         </menu>
     </item>
 

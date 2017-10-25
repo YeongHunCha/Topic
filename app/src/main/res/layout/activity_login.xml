@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context="chacha.com.topic.LoginActivity">
 
+    <ProgressBar
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:id="@+id/pb"
+        />
     <EditText
         android:layout_width="300dp"
         android:layout_height="wrap_content"
