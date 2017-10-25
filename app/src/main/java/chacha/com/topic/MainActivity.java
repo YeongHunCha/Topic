@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private static final int CITY_ACTIVITY = 33;
     private String TAG = "MainActivity";
     private BackPressCloseHandler backPressCloseHandler;
 
@@ -59,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvName;
     private TextView tvEmail;
     private ImageView ivProfilePhoto;
+    private Toolbar toolbar;
+    private ImageView iv;
+    private TextView tvTitle;
 
     private ArrayList<User> userList;
     private ArrayList<Idea> ideaList;
@@ -67,39 +72,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String sort = "Content/createdAt";
     private ChildEventListener cel;
     private Query query;
-
     private User user;
 
+    private DrawerLayout drawer;
+    private ActionBarDrawerToggle toggle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         // Backpress Handler
         backPressCloseHandler = new BackPressCloseHandler(this);
 
+        //data set
+        Singleton.getInstance().setCity("Ronda");
+        userList = new ArrayList<>();
+        ideaList = new ArrayList<>();
+        ideaIdList = new ArrayList<>();
+        existSameEmail = false;
+
         // navigation view
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        ImageView iv = (ImageView) findViewById(R.id.iv_bg);
-        Glide.with(this).load(R.drawable.paris).fitCenter().into(iv);
-        toolbar.setTitle("Paris");
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        iv = (ImageView) findViewById(R.id.iv_bg);
+//        Glide.with(this).load(R.drawable.paris).fitCenter().into(iv);
+//        toolbar.setTitle("가나다");
+        tvTitle = (TextView)findViewById(R.id.tvTitle);
+        tvTitle.setText(Singleton.getInstance().getCity());
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-
         navigationView.setNavigationItemSelectedListener(this);
 
-        userList = new ArrayList<>();
-        ideaList = new ArrayList<>();
-        ideaIdList = new ArrayList<>();
-        existSameEmail = false;
 
         //set profile
         v = navigationView.getHeaderView(0);
@@ -109,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //RecyclerView 셋업
         nsv = (NestedScrollView) findViewById(R.id.nsv);
-
         rv = (RecyclerView) findViewById(R.id.rv);
         lm = new LinearLayoutManager(MainActivity.this, 1, false);
         rv.setLayoutManager(lm);
@@ -124,7 +131,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 nsv.scrollTo(0, 0);
-                startActivity(new Intent(MainActivity.this, WritingActivity.class));
+                Intent intent = new Intent(MainActivity.this, WritingActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -160,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getProfile(userDatabaseReference);
 
             //content load from firebase
-            loadContents("Content/timeStamp");
+            loadContents("Content/createdAt");
         }
     }
 
@@ -199,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //같은 이메일이 존재하지 않을 경우 firebase에 현재유저의 정보를 저장하는 메소드 호출
                 if (!existSameEmail && profileCount == userList.size()) {
                     addUser();
-                    return;
                 }
             }
 
@@ -221,20 +228,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    /*
-     *   navigation view method
-     */
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-//            super.onBackPressed();
-            backPressCloseHandler.onBackPressed();
-        }
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -242,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_past_topic) {
-
+            startActivityForResult(new Intent(MainActivity.this, SelectCityActivity.class), CITY_ACTIVITY);
         } else if (id == R.id.nav_priority_all) {
             sort = "Content/createdAt";
             Toast.makeText(this, "최신 글을 우선 정렬합니다.", Toast.LENGTH_SHORT).show();
@@ -270,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .setNegativeButton("취소", null)
                     .create();
 
-
             dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface arg0) {
@@ -288,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ideaList.clear();
         ideaIdList.clear();
         nsv.scrollTo(0, 0);
-        mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris");
+        mDatabaseReference = mFirebaseDatabase.getReference("Cities").child(Singleton.getInstance().getCity());
         query = mDatabaseReference.orderByChild(sort);
         cel = query.addChildEventListener(new ChildEventListener() {
             @Override
@@ -353,5 +345,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode){
+            case CITY_ACTIVITY:
+                if(resultCode == RESULT_OK){
+                    String s = data.getExtras().getString("city");
+                    Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+                    Singleton.getInstance().setCity(s);
+                    tvTitle.setText(Singleton.getInstance().getCity());
+                    query.removeEventListener(cel);
+                    loadContents(sort);
+                }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+//            super.onBackPressed();
+            backPressCloseHandler.onBackPressed();
+        }
     }
 }

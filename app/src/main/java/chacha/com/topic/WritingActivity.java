@@ -59,7 +59,7 @@ public class WritingActivity extends AppCompatActivity {
         etIdea = (EditText)findViewById(R.id.etIdea);
         ivIdea = (ImageView)findViewById(R.id.ivIdea);
 
-        mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").push().child("Content");
+        mDatabaseReference = mFirebaseDatabase.getReference("Cities").child(Singleton.getInstance().getCity()).push().child("Content");
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,7 +81,7 @@ public class WritingActivity extends AppCompatActivity {
                     mDatabaseReference.setValue(idea.toMap());
                     finish();
                 } else {
-                    mStorageReference.child("Subject").child(mFirebaseUser.getEmail()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    mStorageReference.child("Contents").child(mFirebaseUser.getEmail()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             //noinspection VisibleForTests

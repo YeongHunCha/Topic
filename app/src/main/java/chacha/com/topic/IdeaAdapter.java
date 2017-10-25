@@ -84,7 +84,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
                         public void onClick(View v) {
                             Idea idea = ideaList.get(position);
                             String id = ideaIdList.get(position);
-                            mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").child(id);
+                            mDatabaseReference = mFirebaseDatabase.getReference("Cities").child(Singleton.getInstance().getCity()).child(id);
                             mDatabaseReference.removeValue();
                             if (!idea.contentImageUrl.equals("")) {
                                 mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.contentImageUrl);
@@ -147,7 +147,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
         holder.btnHeart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris").child(ideaIdList.get(position)).child("Content");
+                mDatabaseReference = mFirebaseDatabase.getReference("Cities").child(Singleton.getInstance().getCity()).child(ideaIdList.get(position)).child("Content");
                 clickedLove(mDatabaseReference);
             }
         });
@@ -207,7 +207,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
 
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                Log.d(TAG, "@@ loveTransaction:onComplete:" + databaseError);
+                Log.d(TAG, "loveTransaction:onComplete:" + databaseError);
             }
         });
     }
@@ -219,7 +219,7 @@ public class IdeaAdapter extends RecyclerView.Adapter<IdeaAdapter.ViewHolder> {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 user = dataSnapshot.getValue(User.class);
 
-                if(user!=null){
+                if (user != null) {
                     if (TextUtils.isEmpty(user.Name)) {
                         holder.tvProfileName.setText(user.Email);
                     } else {

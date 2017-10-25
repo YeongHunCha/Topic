@@ -1,62 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    <!--<android.support.design.widget.AppBarLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="250dp"-->
+    <!--android:fitsSystemWindows="true">-->
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:fitsSystemWindows="true">
+    <!--<android.support.design.widget.CollapsingToolbarLayout-->
+    <!--android:id="@+id/collapsingToolbarLayout01"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:fitsSystemWindows="true"-->
+    <!--app:contentScrim="?attr/colorPrimary"-->
+    <!--app:expandedTitleMarginEnd="64dp"-->
+    <!--app:expandedTitleMarginStart="48dp"-->
+    <!--app:layout_scrollFlags="scroll|exitUntilCollapsed">-->
 
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbarLayout01"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+    <!--<ImageView-->
+    <!--android:id="@+id/iv_bg"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:scaleType="centerCrop"-->
+    <!--android:fitsSystemWindows="true"-->
+    <!--android:src="@drawable/main_bar"-->
+    <!--app:layout_collapseMode="parallax" />-->
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:orientation="vertical">
+         <RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="?attr/actionBarSize">
+             <android.support.v7.widget.Toolbar
+                 android:id="@+id/toolbar"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent">
+                 <TextView
+                     android:layout_width="match_parent"
+                     android:layout_height="match_parent" />
+             </android.support.v7.widget.Toolbar>
+             <TextView
+                 android:id="@+id/tvTitle"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:gravity="center"
+                 android:text="city"
+                 android:textColor="#000000"
+                 android:textSize="20dp" />
+         </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/iv_bg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:fitsSystemWindows="true"
-                android:src="@drawable/main_bar"
-                app:layout_collapseMode="parallax" />
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                />
+         <!--</android.support.design.widget.CollapsingToolbarLayout>-->
 
-        </android.support.design.widget.CollapsingToolbarLayout>
+         <!--</android.support.design.widget.AppBarLayout>-->
 
-    </android.support.design.widget.AppBarLayout>
+         <include layout="@layout/content_main" />
 
-    <include layout="@layout/content_main" />
-
+     </LinearLayout>
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnAddPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:layout_marginBottom="15dp"
         android:layout_marginRight="15dp"
-        android:id="@+id/btnAddPost"
-        android:src="@drawable/edit"
-        />
+        android:src="@drawable/edit" />
 
-</android.support.design.widget.CoordinatorLayout>
+
+</RelativeLayout>

@@ -2,9 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_past_topic"
-            android:title="Show Past Topic" />
+        <item android:title="City">
+            <menu>
+                <item
+                    android:id="@+id/nav_past_topic"
+                    android:title="도시 선택" />
+            </menu>
+        </item>
+
     </group>
     <item android:title="Priority">
         <menu>
