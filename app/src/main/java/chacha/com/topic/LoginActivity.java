@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -41,20 +42,23 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private EditText etPassword;
     private Button btnSignin;
     private Button btnRegist;
+    private ProgressBar pb;
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
-    private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference mDatabaseReference;
     private GoogleSignInOptions mGoogleSignInOptions;
     private GoogleApiClient mGoogleApiClient;
-    private boolean existSameEmail = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        pb = (ProgressBar)findViewById(R.id.pb);
+        etEmail = (EditText)findViewById(R.id.etEmail);
+        etPassword = (EditText)findViewById(R.id.etPassword);
+        btnSignin = (Button)findViewById(R.id.btnSignin);
+        btnRegist= (Button)findViewById(R.id.btnRegist);
+
         mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
         mGoogleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -69,25 +73,23 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         btnGoogleSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                pb.setVisibility(View.VISIBLE);
                 Intent intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
                 startActivityForResult(intent, 100);
             }
         });
 
-        etEmail = (EditText)findViewById(R.id.etEmail);
-        etPassword = (EditText)findViewById(R.id.etPassword);
-        btnSignin = (Button)findViewById(R.id.btnSignin);
-        btnRegist= (Button)findViewById(R.id.btnRegist);
-
         btnRegist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                pb.setVisibility(View.VISIBLE);
                 regist(etEmail.getText().toString(), etPassword.getText().toString());
             }
         });
         btnSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                pb.setVisibility(View.VISIBLE);
                 signin(etEmail.getText().toString(), etPassword.getText().toString());
             }
         });
@@ -104,9 +106,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "auth failed",
+                            pb.setVisibility(View.GONE);
+                            Toast.makeText(LoginActivity.this, "회원가입에 실패하였습니다.",
                                     Toast.LENGTH_SHORT).show();
                         }else{
+                            pb.setVisibility(View.GONE);
                             Toast.makeText(LoginActivity.this, "회원가입 되었습니다.", Toast.LENGTH_SHORT).show();
                         }
 
@@ -125,12 +129,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if(task.isSuccessful()){
+                            pb.setVisibility(View.GONE);
                             Intent intent  = new Intent(LoginActivity.this, MainActivity.class);
+                            finish();
                             startActivity(intent);
                         }
                         if (!task.isSuccessful()) {
+                            pb.setVisibility(View.GONE);
                             Log.w(TAG, "signInWithEmail:failed", task.getException());
-                            Toast.makeText(LoginActivity.this, "auth failed",
+                            Toast.makeText(LoginActivity.this, "로그인 정보가 잘못되었습니다.",
                                     Toast.LENGTH_SHORT).show();
                         }
 
@@ -154,6 +161,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 firebaseWithGoogle(account);
             }
             else{
+                pb.setVisibility(View.GONE);
                 Toast.makeText(this, "result failed", Toast.LENGTH_SHORT).show();
             }
         }
@@ -167,12 +175,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
+                    pb.setVisibility(View.GONE);
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
                     finish();
+                    startActivity(intent);
                 }
-                else
-                    Toast.makeText(LoginActivity.this, "failed", Toast.LENGTH_SHORT).show();
+                else {
+                    pb.setVisibility(View.GONE);
+                    Toast.makeText(LoginActivity.this, "구글 로그인 실패", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

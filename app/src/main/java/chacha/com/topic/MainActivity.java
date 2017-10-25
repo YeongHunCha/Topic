@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.NestedScrollView;
@@ -17,7 +16,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,7 +36,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private String TAG = "MainActivity";
     private BackPressCloseHandler backPressCloseHandler;
 
@@ -46,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
     private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDatabaseReference;
-    private DatabaseReference userDatabaseReference;
+    private DatabaseReference userDatabaseReference = mFirebaseDatabase.getReference();
 
     private long profileCount;
     private boolean existSameEmail;
@@ -71,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Query query;
 
     private User user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // navigation view
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        ImageView iv = (ImageView)findViewById(R.id.iv_bg);
+        ImageView iv = (ImageView) findViewById(R.id.iv_bg);
         Glide.with(this).load(R.drawable.paris).fitCenter().into(iv);
         toolbar.setTitle("Paris");
         setSupportActionBar(toolbar);
@@ -102,45 +101,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ideaIdList = new ArrayList<>();
         existSameEmail = false;
 
-        //로그인이 되어 있지 않으면 로그인 페이지로 이동
-        if(mFirebaseUser==null){
-            startActivity(new Intent(this, LoginActivity.class));
-        }
-
-        //Firebase에 user가 있는지 체크하고 없으면 생성
-        mDatabaseReference = mFirebaseDatabase.getReference("user");
-        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                profileCount = dataSnapshot.child("profile").getChildrenCount();
-
-                //profile에 아무것도 없으면 addUser호출
-                if(profileCount==0){
-                    addUser();
-                }else{
-                    //profile에 user들이 존재할 때 현재 유저가 존재하는지 조사
-                    checkExistSameEmail();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
         //set profile
         v = navigationView.getHeaderView(0);
-        tvName = (TextView)v.findViewById(R.id.tv_profile_name);
-        tvEmail = (TextView)v.findViewById(R.id.tv_profile_email);
-        ivProfilePhoto = (ImageView)v.findViewById(R.id.iv_profile_photo);
-
-
-        userDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").child(mFirebaseUser.getUid());
-        getProfile(userDatabaseReference);
+        tvName = (TextView) v.findViewById(R.id.tv_profile_name);
+        tvEmail = (TextView) v.findViewById(R.id.tv_profile_email);
+        ivProfilePhoto = (ImageView) v.findViewById(R.id.iv_profile_photo);
 
         //RecyclerView 셋업
-        nsv = (NestedScrollView)findViewById(R.id.nsv);
+        nsv = (NestedScrollView) findViewById(R.id.nsv);
 
         rv = (RecyclerView) findViewById(R.id.rv);
         lm = new LinearLayoutManager(MainActivity.this, 1, false);
@@ -151,39 +119,70 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rv.setNestedScrollingEnabled(false);
 
         //floatingBtn
-        FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.btnAddPost);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.btnAddPost);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                nsv.scrollTo(0,0);
+                nsv.scrollTo(0, 0);
                 startActivity(new Intent(MainActivity.this, WritingActivity.class));
             }
         });
 
-        //content load from firebase
-        loadContents("Content/timeStamp");
+        //로그인이 되어 있지 않으면 로그인 페이지로 이동
+        if (mFirebaseUser == null) {
+            finish();
+            startActivity(new Intent(this, LoginActivity.class));
+        } else {
+            //Firebase에 user가 있는지 체크하고 없으면 생성
+            mDatabaseReference = mFirebaseDatabase.getReference("user");
+            mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    profileCount = dataSnapshot.child("profile").getChildrenCount();
+
+                    //profile에 아무것도 없으면 addUser호출
+                    if (profileCount == 0) {
+                        addUser();
+                    } else {
+                        //profile에 user들이 존재할 때 현재 유저가 존재하는지 조사
+                        checkExistSameEmail();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            //set profile
+            userDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").child(mFirebaseUser.getUid());
+            getProfile(userDatabaseReference);
+
+            //content load from firebase
+            loadContents("Content/timeStamp");
+        }
     }
 
-    public void addUser(){  //현재 유저를 firebase user/profile카테고리에 삽입
+    public void addUser() {  //현재 유저를 firebase user/profile카테고리에 삽입
 
         mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile").child(mFirebaseUser.getUid());
         HashMap<String, String> userData = new HashMap<String, String>();
-        if(mFirebaseUser.getDisplayName()==null){
+        if (mFirebaseUser.getDisplayName() == null) {
             userData.put("Name", "");
-        }else{
+        } else {
             userData.put("Name", mFirebaseUser.getDisplayName());
         }
         userData.put("Email", mFirebaseUser.getEmail());
-        if(mFirebaseUser.getPhotoUrl()==null){
+        if (mFirebaseUser.getPhotoUrl() == null) {
             userData.put("PhotoUrl", "");
-        }
-        else{
+        } else {
             userData.put("PhotoUrl", String.valueOf(mFirebaseUser.getPhotoUrl()));
         }
         mDatabaseReference.setValue(userData);
     }
 
-    public void checkExistSameEmail(){ //현재 유저가 firebase에 있는지 체크
+    public void checkExistSameEmail() { //현재 유저가 firebase에 있는지 체크
 
         mDatabaseReference = mFirebaseDatabase.getReference("user").child("profile");
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
@@ -191,26 +190,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 User user = dataSnapshot.getValue(User.class);
                 userList.add(user);
-                for(User e : userList){
-                    if(e.Email.equals(mFirebaseUser.getEmail())){
-                        existSameEmail=true;
+                for (User e : userList) {
+                    if (e.Email.equals(mFirebaseUser.getEmail())) {
+                        existSameEmail = true;
                         break;
                     }
                 }
                 //같은 이메일이 존재하지 않을 경우 firebase에 현재유저의 정보를 저장하는 메소드 호출
-                if(!existSameEmail&&profileCount==userList.size()){
+                if (!existSameEmail && profileCount == userList.size()) {
                     addUser();
                     return;
                 }
             }
+
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {            }
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {            }
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {            }
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
             @Override
-            public void onCancelled(DatabaseError databaseError) {            }
+            public void onCancelled(DatabaseError databaseError) {
+            }
         });
     }
 
@@ -238,18 +245,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         } else if (id == R.id.nav_priority_all) {
             sort = "Content/createdAt";
-            Toast.makeText(this, "오래된 것 우선", Toast.LENGTH_SHORT).show();
-            query.removeEventListener(cel);
-            loadContents(sort);
-        } else if (id == R.id.nav_priority_friends) {
-            sort = "Content/uid";
-            Toast.makeText(this, "사용자 이름 우선", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "최신 글을 우선 정렬합니다.", Toast.LENGTH_SHORT).show();
             query.removeEventListener(cel);
             loadContents(sort);
         } else if (id == R.id.nav_priority_rank) {
             sort = "Content/loveCount";
             query.removeEventListener(cel);
-            Toast.makeText(this, "좋아요 갯수 우선", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "인기있는 글을 우선 정렬합니다.", Toast.LENGTH_SHORT).show();
             loadContents(sort);
         } else if (id == R.id.nav_profile_edit) {
             startActivity(new Intent(this, ProfileEditActivity.class));
@@ -260,6 +262,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             mFirebaseAuth.signOut();
+                            finish();
                             startActivity(new Intent(MainActivity.this, LoginActivity.class));
                             Toast.makeText(MainActivity.this, "로그아웃 하였습니다.", Toast.LENGTH_SHORT).show();
                         }
@@ -281,10 +284,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void loadContents(String sort){
+    public void loadContents(String sort) {
         ideaList.clear();
         ideaIdList.clear();
-        nsv.scrollTo(0,0);
+        nsv.scrollTo(0, 0);
         mDatabaseReference = mFirebaseDatabase.getReference("Cities").child("Paris");
         query = mDatabaseReference.orderByChild(sort);
         cel = query.addChildEventListener(new ChildEventListener() {
@@ -292,8 +295,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Idea idea = dataSnapshot.child("Content").getValue(Idea.class);
                 String ideaId = dataSnapshot.getKey();
-                ideaList.add(0,idea);
-                ideaIdList.add(0,ideaId);
+                ideaList.add(0, idea);
+                ideaIdList.add(0, ideaId);
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -324,13 +327,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
     }
-    public void getProfile(DatabaseReference ref){
+
+    public void getProfile(DatabaseReference ref) {
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 user = dataSnapshot.getValue(User.class);
-                if(user!=null){
-                    if(TextUtils.isEmpty(user.Name)){
+                if (user != null) {
+                    if (TextUtils.isEmpty(user.Name)) {
                         tvName.setText("* 이름 없음. 프로필을 수정 해주세요!");
                     } else {
                         tvName.setText(user.Name);

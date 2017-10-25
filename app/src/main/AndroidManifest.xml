@@ -16,10 +16,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity" />
+        <activity
+            android:name=".LoginActivity"/>
         <activity android:name=".WritingActivity" />
         <activity android:name=".EditContentActivity" />
-        <activity android:name=".ProfileEditActivity"></activity>
+        <activity android:name=".ProfileEditActivity" />
     </application>
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>
