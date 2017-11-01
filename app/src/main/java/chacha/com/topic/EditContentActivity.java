@@ -70,32 +70,39 @@ public class EditContentActivity extends AppCompatActivity {
             public void onClick(View v) {
                 pb.setVisibility(View.VISIBLE);
                 //기존 이미지 삭제
-                if (idea.contentImageUrl.contains("https://firebasestorage.googleapis.com/v0/b/topic-5b5c9.appspot.com/o/Contents")) {
-                    mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.contentImageUrl);
-                    mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                idea.content = etEditContent.getText().toString();
+                mDatabaseReference = mFirebaseDatabase.getReference("Cities").child(Singleton.getInstance().getCity()).child(id).child("Content");
+                if(uri==null){
+                    mDatabaseReference.updateChildren(idea.toMap());
+                    pb.setVisibility(View.GONE);
+                    finish();
+                } else {
+                    if (idea.contentImageUrl.contains("https://firebasestorage.googleapis.com/v0/b/topic-5b5c9.appspot.com/o/Contents")) {
+                        mStorageReference = mFirebaseStorage.getReferenceFromUrl(idea.contentImageUrl);
+                        mStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(EditContentActivity.this, "이전 사진이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        Log.d(TAG, "It's not on firebaseStorage");
+                    }
+
+                    //재 업로드
+                    mFirebaseStorage.getReference().child("Contents").child(mFirebaseUser.getEmail()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(EditContentActivity.this, "이전 사진이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //noinspection VisibleForTests
+                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                            idea.contentImageUrl = String.valueOf(downloadUrl);
+                            mDatabaseReference.updateChildren(idea.toMap());
+                            pb.setVisibility(View.GONE);
+                            finish();
                         }
                     });
-                } else {
-                    Log.d(TAG, "It's not on firebaseStorage");
                 }
 
-                //재 업로드
-                mFirebaseStorage.getReference().child("Contents").child(mFirebaseUser.getEmail()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        //noinspection VisibleForTests
-                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                        idea.content = etEditContent.getText().toString();
-                        idea.contentImageUrl = String.valueOf(downloadUrl);
-                        mDatabaseReference = mFirebaseDatabase.getReference("Cities").child(Singleton.getInstance().getCity()).child(id).child("Content");
-                        mDatabaseReference.updateChildren(idea.toMap());
-                        pb.setVisibility(View.GONE);
-                        finish();
-                    }
-                });
             }
         });
 
