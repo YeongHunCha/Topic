@@ -56,14 +56,14 @@
             <Button
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="cancel"
+                android:text="취소"
                 android:layout_marginRight="20dp"
                 android:background="#ff5a60"
                 android:id="@+id/btn_cancel"/>
             <Button
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="confirm"
+                android:text="수정"
                 android:background="#009688"
                 android:id="@+id/btn_confirm"/>
         </LinearLayout>

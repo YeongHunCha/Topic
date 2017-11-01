@@ -40,14 +40,14 @@
         <Button
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="cancel"
+            android:text="취소"
             android:id="@+id/btnCancel"
             android:background="#ff5a60"/>
         <Button
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:id="@+id/btnConfirm"
-            android:text="confirm"
+            android:text="확인"
             android:layout_toRightOf="@+id/btnCancel"
             android:background="#009688"
             android:layout_marginLeft="20dp"/>

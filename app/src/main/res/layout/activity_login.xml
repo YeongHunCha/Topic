@@ -33,7 +33,7 @@
     <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="Sign-in"
+        android:text="로그인"
         android:id="@+id/btnSignin"
         android:layout_below="@+id/etPassword"
         android:layout_marginTop="50dp"
@@ -42,11 +42,12 @@
     <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="Regist"
+        android:text="간편가입"
         android:id="@+id/btnRegist"
         android:layout_below="@+id/btnSignin"
         android:layout_centerHorizontal="true"
         android:background="#00ff"/>
+
     <com.google.android.gms.common.SignInButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

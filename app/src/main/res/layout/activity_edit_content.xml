@@ -31,20 +31,27 @@
         <Button
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="cancel"
+            android:text="취소"
             android:id="@+id/btnCancel"
             android:background="#ff5a60"
-            android:textColor="#ffff"/>
+            />
         <Button
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="confirm"
+            android:text="수정"
             android:id="@+id/btnConfirm"
             android:layout_toRightOf="@+id/btnCancel"
             android:layout_marginLeft="10dp"
             android:background="#009688"
-            android:textColor="#ffff"/>
+            />
     </RelativeLayout>
-
+    <ProgressBar
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:id="@+id/pb"
+        />
 
 </RelativeLayout>

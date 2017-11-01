@@ -16,11 +16,4 @@ public class City {
         this.cityName = cityName;
         this.cityPhoto = cityPhoto;
     }
-
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("cityName", cityName);
-        result.put("cityPhoto", cityPhoto);
-        return result;
-    }
 }
